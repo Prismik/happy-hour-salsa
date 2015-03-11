@@ -7,7 +7,7 @@ class Client {
 	private static BufferedInputStream in;
 	private static BufferedOutputStream out;
 	private static BufferedReader console;  
-	private static void handleBeginMsg() {
+	private static void handleBeginMsg(int p) {
 		byte[] buffer = new byte[1024];
 		int size = in.available();
 		//System.out.println("size " + size);
@@ -24,6 +24,8 @@ class Client {
 				y++;
 			}
 		}
+
+		board.setSelf(p);
 	}
 
 	// We generate the move list and select
@@ -37,7 +39,7 @@ class Client {
 
 	public static void main(String[] args) {
 		try {
-			board = new Board();
+			board = new Board(8);
 			sock = new Socket("localhost", 8888);
 			in = new BufferedInputStream(sock.getInputStream());
 			out = new BufferedOutputStream(sock.getOutputStream());
@@ -49,7 +51,7 @@ class Client {
 				
 				// Début de la partie en joueur blanc
 				if(cmd == '1') {
-					handleBeginMsg();
+					handleBeginMsg(4);
 					System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
 					play();
 				}
@@ -57,7 +59,7 @@ class Client {
 				// Début de la partie en joueur Noir
 				if(cmd == '2') {
 					System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
-					handleBeginMsg();
+					handleBeginMsg(2);
 				}
 
 				// Le serveur demande le prochain coup
