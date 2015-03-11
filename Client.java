@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 
 class Client {
-	private static int[][] board = new int[8][8];
+	private static Board board;
 	private static Socket sock;
 	private static BufferedInputStream in;
 	private static BufferedOutputStream out;
@@ -17,7 +17,7 @@ class Client {
 		boardValues = s.split(" ");
 		int x = 0,y = 0;
 		for(int i= 0; i < boardValues.length; i++) {
-			board[x][y] = Integer.parseInt(boardValues[i]);
+			board.set(x, y, Integer.parseInt(boardValues[i]));
 			x++;
 			if(x == 8) {
 				x = 0;
@@ -26,7 +26,9 @@ class Client {
 		}
 	}
 
-	private static void flushMsg() {					
+	// We generate the move list and select
+	// the best possible move in here
+	private static void play() {					
 		String move = null;
 		move = console.readLine();
 		out.write(move.getBytes(), 0, move.length());
@@ -35,6 +37,7 @@ class Client {
 
 	public static void main(String[] args) {
 		try {
+			board = new Board();
 			sock = new Socket("localhost", 8888);
 			in = new BufferedInputStream(sock.getInputStream());
 			out = new BufferedOutputStream(sock.getOutputStream());
@@ -46,15 +49,15 @@ class Client {
 				
 				// Début de la partie en joueur blanc
 				if(cmd == '1') {
-					handleBeginMsg(1);
+					handleBeginMsg();
 					System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
-					flushMsg();
+					play();
 				}
 
 				// Début de la partie en joueur Noir
 				if(cmd == '2') {
 					System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
-					handleBeginMsg(2);
+					handleBeginMsg();
 				}
 
 				// Le serveur demande le prochain coup
@@ -68,18 +71,18 @@ class Client {
 					String s = new String(buffer);
 					System.out.println("Dernier coup : "+ s);
 					System.out.println("Entrez votre coup : ");
-					flushMsg();
+					play();
 				}
 
 				// Le dernier coup est invalide
 				if(cmd == '4') {
 					System.out.println("Coup invalide, entrez un nouveau coup : ");
-					flushMsg();
+					play();
 				}
 			}
 		}
 		catch (IOException e) {
-	   		System.out.println(e);
+	   	System.out.println(e);
 		}
 	}
 }
