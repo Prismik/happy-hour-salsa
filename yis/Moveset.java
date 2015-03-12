@@ -1,39 +1,24 @@
 package yis;
 
+import java.util.ArrayList;
+
 class Moveset {
-	private int north = 0;
-	private int northEast = 0;
-	private int east = 0;
-	private int southEast = 0;
-	private int south = 0;
-	private int southWest = 0;
-	private int west = 0;
-	private int northWest = 0;
+	private ArrayList<Point> moves;
 
 	// A moveset of 0 meanrs you cannot
 	// move in the given direction.
 	public Moveset() {
-		north = 0;
-		northEast = 0;
-		east = 0;
-		southEast = 0;
-		south = 0;
-		southWest = 0;
-		west = 0;
-		northWest = 0;
+		moves = new ArrayList<Point>();
 	}
 
-	public Moveset(int n, int ne, int e, int se, int s, int sw, int w, int nw) {
-		north = n;
-		northEast = ne;
-		east = e;
-		southEast = se;
-		south = s;
-		southWest = sw;
-		west = w;
-		northWest = nw;
+	public Moveset(ArrayList<Point> moves) {
+		this.moves = moves;
 	}
-
+	
+	public void addMove(Point move) { moves.add(move); }
+	public void clear() { moves.clear(); }
+	
+/*
 	public int getNorth() { return north; }
 	public int getNorthEast() { return northEast; }
 	public int getEast() { return east; }
@@ -51,4 +36,5 @@ class Moveset {
 	public void setSouthWest(int v) { southWest = v; }
 	public void setWest(int v) { west = v; }
 	public void setNorthWest(int v) { northWest = v; }
+*/
 }

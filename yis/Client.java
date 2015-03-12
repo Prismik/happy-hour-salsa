@@ -9,7 +9,7 @@ class Client {
 	private static BufferedInputStream in;
 	private static BufferedOutputStream out;
 	private static BufferedReader console;  
-	private static void handleBeginMsg(int p) {
+	private static void handleBeginMsg(int p) throws IOException {
 		byte[] buffer = new byte[1024];
 		int size = in.available();
 		//System.out.println("size " + size);
@@ -30,15 +30,16 @@ class Client {
 		board.setSelf(p);
 	}
 
-	public static void parseMsg(String) {
+	public static void parseMsg(String msg) {
 
 	}
 
 	// We generate the move list and select
 	// the best possible move in here
-	private static void play() {					
+	private static void play() throws IOException {					
 		String move = null;
 		move = console.readLine();
+
 		out.write(move.getBytes(), 0, move.length());
 		out.flush();
 	}

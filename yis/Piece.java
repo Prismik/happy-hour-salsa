@@ -8,5 +8,7 @@ class Piece {
 		player = p;
 	}
 
+	public Moveset getMoveset() { return moves; }
+	
 	public boolean isBlack() { return player == 2; }
 }
