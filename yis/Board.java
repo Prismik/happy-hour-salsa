@@ -1,6 +1,8 @@
 package yis;
 
 class Board {
+	private final int WHITE = 4;
+	private final int BLACK = 2;
 	private Piece[][] board;
 	private int player = 4; // default
 	private int size;
@@ -11,52 +13,51 @@ class Board {
 		whitePieces = blackPieces = (s - 2) * 2;
 	}
 
-	private int evalVictory() {
-		if (whitePieces == 1)
-			return 4;
-		else if (blackPieces == 1)
-			return 2;
-		else {
+	private boolean hasWon(int player) {
+		if (player == WHITE && whitePieces == 1)
+			return true;
+		else if (player == BLACK && blackPieces == 1)
+			return true;
+		else
 			for (int i = 0; i != size - 1; i++)
 				for (int j = 0; j != size -1; j++)
-
-		}
+					if (adjacentsOfType(i, j, player) == 0)
+						return false;	
 	}
 	
-	public int adjacentsOfType(int x, int y, int type) {
+	public int adjacentsOfType(int x, int y, int player) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
 		boolean right = x + 1 <= size - 1;
 		boolean bottom = y + 1 <= size - 1;
 		boolean left = x - 1 >= 0;
-
 		if (left) {
-			if (board[x-1][y].getPlayer() == type)
+			if (board[x-1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x-1][y-1].getPlayer() == type)
+			if (top && board[x-1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x-1][y+1].getPlayer() == type)
+			if (bottom && board[x-1][y+1].getPlayer() == player)
 				count++;
 		}
 
 		if (top)
-			if (board[x][y-1].getPlayer() == type)
+			if (board[x][y-1].getPlayer() == player)
 				count++;
 
 		if (bottom)
-			if (board[x][y+1].getPlayer() == type)
+			if (board[x][y+1].getPlayer() == player)
 				count++;
 
 		if (right) {
-			if (board[x+1][y].getPlayer() == type)
+			if (board[x+1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x+1][y-1].getPlayer() == type)
+			if (top && board[x+1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x+1][y+1].getPlayer() == type)
+			if (bottom && board[x+1][y+1].getPlayer() == player)
 				count++;
 		}
 	}
@@ -137,9 +138,9 @@ class Board {
 			for (int j = 0; j != size - 1; j++) {
 				if (board[i][j] == null)
 					b += ". ";
-				else if (board[i][j].isBlack())
+				else if (board[i][j].getPlayer() == WHITE)
 					b += "x ";
-				else if (!board[i][j].isBlack())
+				else if (!board[i][j].getPlayer() == BLACK)
 					b += "o ";
 			}
 
