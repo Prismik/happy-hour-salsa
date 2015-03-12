@@ -7,8 +7,9 @@ class Piece {
 	public Piece(int p) {
 		player = p;
 	}
-
+	
 	public Moveset getMoveset() { return moves; }
 	
-	public boolean isBlack() { return player == 2; }
+	public int getPlayer() { return player; }
+
 }

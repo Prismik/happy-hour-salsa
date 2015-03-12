@@ -8,6 +8,7 @@ class Client {
 	private static Socket sock;
 	private static BufferedInputStream in;
 	private static BufferedOutputStream out;
+
 	private static BufferedReader console;  
 	private static void handleBeginMsg(int p) throws IOException {
 		byte[] buffer = new byte[1024];
@@ -25,9 +26,8 @@ class Client {
 				x = 0;
 				y++;
 			}
-		}
 
-		board.setSelf(p);
+			board.setSelf(p);
 	}
 
 	public static void parseMsg(String msg) {
@@ -36,12 +36,16 @@ class Client {
 
 	// We generate the move list and select
 	// the best possible move in here
-	private static void play() throws IOException {					
-		String move = null;
-		move = console.readLine();
-
-		out.write(move.getBytes(), 0, move.length());
-		out.flush();
+	private static void play() {
+		try {
+			String move = null;
+			move = console.readLine();
+			out.write(move.getBytes(), 0, move.length());
+			out.flush();
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -54,7 +58,7 @@ class Client {
 
 			while(true) {
 				char cmd = 0;
-			  cmd = (char)in.read();
+				cmd = (char)in.read();
 				
 				// Début de la partie en joueur blanc
 				if(cmd == '1') {
