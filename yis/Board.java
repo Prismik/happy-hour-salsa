@@ -4,15 +4,63 @@ class Board {
 	private Piece[][] board;
 	private int player = 4; // default
 	private int size;
+	private int whitePieces, blackPieces;
 	public Board(int s) {
 		size = s;
 		board = new Piece[size][size];
+		whitePieces = blackPieces = (s - 2) * 2;
 	}
 
 	private int evalVictory() {
-		return -1;
+		if (whitePieces == 1)
+			return 4;
+		else if (blackPieces == 1)
+			return 2;
+		else {
+			for (int i = 0; i != size - 1; i++)
+				for (int j = 0; j != size -1; j++)
+
+		}
 	}
 	
+	public int adjacentsOfType(int x, int y, int type) {
+		int count = 0;
+		boolean top = y - 1 >= 0;
+		boolean right = x + 1 <= size - 1;
+		boolean bottom = y + 1 <= size - 1;
+		boolean left = x - 1 >= 0;
+
+		if (left) {
+			if (board[x-1][y].getPlayer() == type)
+				count++;
+
+			if (top && board[x-1][y-1].getPlayer() == type)
+				count++;
+
+			if (bottom && board[x-1][y+1].getPlayer() == type)
+				count++;
+		}
+
+		if (top)
+			if (board[x][y-1].getPlayer() == type)
+				count++;
+
+		if (bottom)
+			if (board[x][y+1].getPlayer() == type)
+				count++;
+
+		if (right) {
+			if (board[x+1][y].getPlayer() == type)
+				count++;
+
+			if (top && board[x+1][y-1].getPlayer() == type)
+				count++;
+
+			if (bottom && board[x+1][y+1].getPlayer() == type)
+				count++;
+		}
+	}
+
 	// 4 for white
 	// 2 for black
 	public void setSelf(int p) {

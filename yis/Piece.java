@@ -8,5 +8,5 @@ class Piece {
 		player = p;
 	}
 
-	public boolean isBlack() { return player == 2; }
+	public int getPlayer() { return player; }
 }

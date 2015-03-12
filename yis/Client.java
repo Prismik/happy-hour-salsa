@@ -8,39 +8,49 @@ class Client {
 	private static Socket sock;
 	private static BufferedInputStream in;
 	private static BufferedOutputStream out;
-	private static BufferedReader console;  
+	private static BufferedReader console;	
 	private static void handleBeginMsg(int p) {
-		byte[] buffer = new byte[1024];
-		int size = in.available();
-		//System.out.println("size " + size);
-		in.read(buffer, 0, size);
-		String s = new String(buffer).trim();
-		String[] boardValues;
-		boardValues = s.split(" ");
-		int x = 0,y = 0;
-		for(int i= 0; i < boardValues.length; i++) {
-			board.set(x, y, Integer.parseInt(boardValues[i]));
-			x++;
-			if(x == 8) {
-				x = 0;
-				y++;
+		try {
+			byte[] buffer = new byte[1024];
+			int size = in.available();
+			//System.out.println("size " + size);
+			in.read(buffer, 0, size);
+			String s = new String(buffer).trim();
+			String[] boardValues;
+			boardValues = s.split(" ");
+			int x = 0, y = 0;
+			for (int i = 0; i < boardValues.length; i++) {
+				board.set(x, y, Integer.parseInt(boardValues[i]));
+				x++;
+				if (x == 8) {
+					x = 0;
+					y++;
+				}
 			}
-		}
 
-		board.setSelf(p);
+			board.setSelf(p);
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
 	}
 
-	public static void parseMsg(String) {
+	public static void parseMsg(String msg) {
 
 	}
 
 	// We generate the move list and select
 	// the best possible move in here
-	private static void play() {					
-		String move = null;
-		move = console.readLine();
-		out.write(move.getBytes(), 0, move.length());
-		out.flush();
+	private static void play() {
+		try {
+			String move = null;
+			move = console.readLine();
+			out.write(move.getBytes(), 0, move.length());
+			out.flush();
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -53,7 +63,7 @@ class Client {
 
 			while(true) {
 				char cmd = 0;
-			  cmd = (char)in.read();
+				cmd = (char)in.read();
 				
 				// Début de la partie en joueur blanc
 				if(cmd == '1') {
