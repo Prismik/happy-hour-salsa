@@ -1,3 +1,5 @@
+package yis;
+
 import java.io.*;
 import java.net.*;
 
@@ -26,6 +28,10 @@ class Client {
 		}
 
 		board.setSelf(p);
+	}
+
+	public static void parseMsg(String) {
+
 	}
 
 	// We generate the move list and select
@@ -72,6 +78,8 @@ class Client {
 					
 					String s = new String(buffer);
 					System.out.println("Dernier coup : "+ s);
+					parseMsg(s);
+
 					System.out.println("Entrez votre coup : ");
 					play();
 				}
@@ -84,7 +92,7 @@ class Client {
 			}
 		}
 		catch (IOException e) {
-	   	System.out.println(e);
+			System.out.println(e);
 		}
 	}
 }

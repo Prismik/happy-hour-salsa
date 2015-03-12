@@ -1,3 +1,5 @@
+package yis;
+
 class Moveset {
 	private int north = 0;
 	private int northEast = 0;
@@ -21,7 +23,7 @@ class Moveset {
 		northWest = 0;
 	}
 
-	public Moveset(n, ne, e, se, s, sw, w, nw) {
+	public Moveset(int n, int ne, int e, int se, int s, int sw, int w, int nw) {
 		north = n;
 		northEast = ne;
 		east = e;

@@ -1,12 +1,18 @@
+package yis;
+
 class Board {
 	private Piece[][] board;
 	private int player = 4; // default
 	private int size;
 	public Board(int s) {
 		size = s;
-		board = new Piece[size][size]
+		board = new Piece[size][size];
 	}
 
+	private int evalVictory() {
+		return -1;
+	}
+	
 	// 4 for white
 	// 2 for black
 	public void setSelf(int p) {
@@ -31,11 +37,13 @@ class Board {
 		int h = horizontal(x, y);
 		int dlr = diagonalLeftRight(x, y);
 		int drl = diagonalRightLeft(x, y);
+
+		return null;
 	}
 
 	// Optimisation possible, garder en memoire le nb de pieces
 	// veritcal horizontal et diagonal pour chaque position
-	public int vertical(int x, int y) {
+	private int vertical(int x, int y) {
 		int count = 0;
 		for (int i = 0; i != size - 1; i++)
 			if (board[x][i] != null)
@@ -44,7 +52,7 @@ class Board {
 		return count;
 	}
 
-	public int horizontal(int x, int y) {
+	private int horizontal(int x, int y) {
 		int count = 0;
 		for (int i = 0; i != size - 1; i++)
 			if (board[i][y] != null)
@@ -54,7 +62,7 @@ class Board {
 	} 
 
 	// à tester
-	public int diagonalLeftRight(int x, int y) {
+	private int diagonalLeftRight(int x, int y) {
 		int dif = size - y;
 		int count = 0;
 		for (int i = 0, j = y; i != dif - 1; i++, j++)
@@ -65,7 +73,7 @@ class Board {
 	}
 
 	// à tester
-	public int diagonalRightLeft(int x, int y) {
+	private int diagonalRightLeft(int x, int y) {
 		int dif = size - y;
 		int count = 0;
 		for (int i = 0, j = y; i != dif - 1; i++, j--)
@@ -78,16 +86,18 @@ class Board {
 	public String toString() {
 		String b = "";
 		for (int i = 0; i != size - 1; i++) {
-			for (int j = 0; j != size - 1; j++) {
+			for (int j = 0; j != size - 1; j++) {
 				if (board[i][j] == null)
 					b += ". ";
-				else if (board[i][j].getPlayer() == 2)
+				else if (board[i][j].isBlack())
 					b += "x ";
-				else (board[i][j].getPlayer() == 2)
+				else if (!board[i][j].isBlack())
 					b += "o ";
 			}
 
 			b += "\n";
 		}
+
+		return b;
 	}
 }
