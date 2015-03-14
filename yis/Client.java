@@ -28,7 +28,7 @@ class Client {
 			}
 		}
 		
-		board.setSelf(p);
+		board.init(p);
 	}
 	
 	public static void parseMsg(String msg) {
@@ -40,7 +40,7 @@ class Client {
 	private static void play() {
 		try {
 			String move = null;
-			move = console.readLine();
+			move = board.getNextMove();
 			out.write(move.getBytes(), 0, move.length());
 			out.flush();
 		}
