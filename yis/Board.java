@@ -23,6 +23,8 @@ class Board {
 				for (int j = 0; j != size -1; j++)
 					if (adjacentsOfType(i, j, player) == 0)
 						return false;	
+		
+		return true;
 	}
 	
 	public int adjacentsOfType(int x, int y, int player) {
@@ -60,6 +62,8 @@ class Board {
 			if (bottom && board[x+1][y+1].getPlayer() == player)
 				count++;
 		}
+		
+		return count;
 	}
 
 	// 4 for white
@@ -90,7 +94,7 @@ class Board {
 		// clockwise looking
 		Moveset moveset = board[x][y].getMoveset();
 		moveset.clear();
-		Point p;
+		Tile p;
 		if ((p = lookUp(x, y, mvmtV)) != null) moveset.addMove(p);
 		if ((p = lookUpRight(x, y, mvmtDbl)) != null) moveset.addMove(p);
 		if ((p = lookRight(x, y, mvmtH)) != null) moveset.addMove(p);
@@ -183,10 +187,10 @@ class Board {
 		return count;
 	}
 	
-	public Point lookUp(int x, int y, int mov) {
+	public Tile lookUp(int x, int y, int mov) {
 		for (int i = x; i >= 0 && i >= x - mov; --i) {
 			if (i == x - mov && (board[i][y] == null || board[i][y].getPlayer() != player))
-				return new Point(i, y);
+				return new Tile(i, y);
 			else if (board[i][y] != null && board[i][y].getPlayer() != player)
 				return null;
 		}
@@ -194,14 +198,14 @@ class Board {
 		return null;
 	}
 	
-	public Point lookUpRight(int x, int y, int mov) {
+	public Tile lookUpRight(int x, int y, int mov) {
 		return null;
 	}
 	
-	public Point lookRight(int x, int y, int mov) {
+	public Tile lookRight(int x, int y, int mov) {
 		for (int i = y; i < 8 && i <= y + mov; ++i) {
 			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != player))
-				return new Point(x, i);
+				return new Tile(x, i);
 			else if (board[x][i] != null && board[x][i].getPlayer() != player)
 				return null;
 		}
@@ -209,14 +213,14 @@ class Board {
 		return null;
 	}
 	
-	public Point lookDownRight(int x, int y, int mov) {
+	public Tile lookDownRight(int x, int y, int mov) {
 		return null;
 	}
 	
-	public Point lookDown(int x, int y, int mov) {
+	public Tile lookDown(int x, int y, int mov) {
 		for (int i = x; i < 8 && i <= x + mov; ++i) {
 			if (i == x + mov && (board[i][y] == null || board[i][y].getPlayer() != player))
-				return new Point(i, y);
+				return new Tile(i, y);
 			else if (board[i][y] != null && board[i][y].getPlayer() != player)
 				return null;
 		}
@@ -224,14 +228,27 @@ class Board {
 		return null;
 	}
 	
-	public Point lookDownLeft(int x, int y, int mov) {
+	public Tile lookDownLeft(int x, int y, int mov) {
+		int i = x;
+		int j = y;
+		
+		for (int nbMoves = 0; i < 8 && j < 8 && nbMoves < mov; ++nbMoves) {
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+				return new Tile(i, j);
+			else if (board[i][j] != null && board[i][j].getPlayer() != player)
+				return null;
+			
+			++i;
+			++j;
+		}
+		
 		return null;
 	}
 	
-	public Point lookLeft(int x, int y, int mov) {
+	public Tile lookLeft(int x, int y, int mov) {
 		for (int i = y; i >= 0 && i >= y + mov; ++i) {
 			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != player))
-				return new Point(x, i);
+				return new Tile(x, i);
 			else if (board[x][i] != null && board[x][i].getPlayer() != player)
 				return null;
 		}
@@ -239,27 +256,32 @@ class Board {
 		return null;
 	}
 	
-	public Point lookUpLeft(int x, int y, int mov) {
-		/*int i = 0;
-		int j = 0;
+	public Tile lookUpLeft(int x, int y, int mov) {
+		int i = x;
+		int j = y;
 		
-		while (i >= 0 && j >= 0 && i  y + mov) {
-			
+		for (int nbMoves = 0; i >= 0 && j >= 0 && nbMoves < mov; ++nbMoves) {
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+				return new Tile(i, j);
+			else if (board[i][j] != null && board[x][i].getPlayer() != player)
+				return null;
 			
 			--i;
 			--j;
-		}*/
+		}
+		
+		return null;
 	}
 
 	public String toString() {
 		String b = "";
-		for (int i = 0; i != size - 1; i++) {
-			for (int j = 0; j != size - 1; j++) {
+		for (int i = 0; i != size; i++) {
+			for (int j = 0; j != size; j++) {
 				if (board[i][j] == null)
 					b += ". ";
 				else if (board[i][j].getPlayer() == WHITE)
 					b += "x ";
-				else if (!board[i][j].getPlayer() == BLACK)
+				else if (board[i][j].getPlayer() == BLACK)
 					b += "o ";
 			}
 

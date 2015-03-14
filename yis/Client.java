@@ -26,8 +26,9 @@ class Client {
 				x = 0;
 				y++;
 			}
-
-			board.setSelf(p);
+		}
+		
+		board.setSelf(p);
 	}
 	
 	public static void parseMsg(String msg) {
@@ -65,6 +66,7 @@ class Client {
 					handleBeginMsg(4);
 					System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
 					play();
+					System.out.println(board.toString());
 				}
 
 				// Début de la partie en joueur Noir
@@ -82,7 +84,7 @@ class Client {
 					in.read(buffer, 0, size);
 					
 					String s = new String(buffer);
-					System.out.println("Dernier coup : "+ s);
+					System.out.println("Dernier coup : " + s);
 					parseMsg(s);
 
 					System.out.println("Entrez votre coup : ");
