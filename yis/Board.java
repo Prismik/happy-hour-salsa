@@ -1,6 +1,7 @@
 package yis;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 class Board {
 	private final int WHITE = 4;
@@ -32,10 +33,12 @@ class Board {
 	}
 	
 	private String tileToString(int x, int y) {
-		return Character.toChars(x + 65)[0] + String.valueOf(y);
+        System.out.println("Format is: " + Integer.toString(y + 1));
+        return Character.toChars(x + 65)[0] + Integer.toString(y + 1);
 	}
 
 	private String formatMove(int fromX, int fromY, int toX, int toY) {
+        System.out.println("Before the parse: " + fromX + " " + fromY + " TO " + toX + " " + toY);
 		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
 	}
 
@@ -82,13 +85,17 @@ class Board {
 	// 2 for black
 	public void init(int p) {
 		player = p;
-		for (int i = 0; i < 8; ++i) {
-			for (int j = 0; j < 8; ++j) {
-				if (board[i][j] != null)
-					updateMoveset(i, j, board[i][j].getPlayer());
-			}
-		}
+		updateAll();
 	}
+
+    private void updateAll() {
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (board[i][j] != null)
+                    updateMoveset(i, j, board[i][j].getPlayer());
+            }
+        }
+    }
 
 	public void set(int x, int y, int player) {
 		if (player == 0)
@@ -101,22 +108,44 @@ class Board {
 		Piece p = board[fromX][fromY];
 		board[fromX][fromY] = null;
 		board[toX][toY] = p;
+        updateAll();
+        System.out.println(this.toString());
 	}
-	
-	public String getNextMove() {
-		int rand = r.nextInt(64);
-		Piece currentPiece;
-		for (int i = 0, k = 0; i < 8; ++i) {
-			for (int j = 0; j < 8; ++j, ++k) {
-				currentPiece = board[i][j];
-				if (currentPiece != null) {
-					for (Tile move : currentPiece.getMoveset())
-						return formatMove(i, j, move.getX(), move.getY());
-				}
-			}
-		}
 
-		return "";
+    public void move(Tile[] tiles) {
+        move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
+    }
+
+
+	public String getNextMove() {
+		Piece currentPiece;
+        Piece pieceToMove;
+        Tile tileToGo = null;
+        int x, y;
+        x = y = 0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                currentPiece = board[i][j];
+                if (currentPiece != null) {
+                    x = i;
+                    y = j;
+                    for (Tile move : currentPiece.getMoveset()) {
+                        if (tileToGo == null || tileToGo.getValue() < move.getValue()
+                                && currentPiece.getPlayer() == player) {
+                            pieceToMove = currentPiece;
+                            tileToGo = move;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (tileToGo != null) {
+            move(x, y, tileToGo.getX(), tileToGo.getY());
+            return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
+        }
+        else
+            return "";
 	}
 
 	public void updateMoveset(int x, int y, int player) {
