@@ -9,10 +9,12 @@ class Board {
 	private int player = 4; // default
 	private int size;
 	private int whitePieces, blackPieces;
+	private Random r;
 	public Board(int s) {
 		size = s;
 		board = new Piece[size][size];
 		whitePieces = blackPieces = (s - 2) * 2;
+		r = new Random();
 	}
 
 	private boolean hasWon(int player) {
@@ -102,18 +104,19 @@ class Board {
 	}
 	
 	public String getNextMove() {
+		int rand = r.nextInt(64);
 		Piece currentPiece;
-		for (int i = 0; i < 8; ++i) {
-			for (int j = 0; j < 8; ++j) {
+		for (int i = 0, k = 0; i < 8; ++i) {
+			for (int j = 0; j < 8; ++j, ++k) {
 				currentPiece = board[i][j];
 				if (currentPiece != null) {
 					for (Tile move : currentPiece.getMoveset())
-						System.out.println(i + "" + j + "-" + move.getX() + "" + move.getY());
+						return formatMove(i, j, move.getX(), move.getY());
 				}
 			}
 		}
-		
-		return "A2-C2";
+
+		return "";
 	}
 
 	public void updateMoveset(int x, int y, int player) {
