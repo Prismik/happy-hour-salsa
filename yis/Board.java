@@ -29,6 +29,14 @@ class Board {
 		return true;
 	}
 	
+	private String tileToString(int x, int y) {
+		return Character.toChars(x + 65)[0] + String.valueOf(y);
+	}
+
+	private String formatMove(int fromX, int fromY, int toX, int toY) {
+		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
+	}
+
 	public int adjacentsOfType(int x, int y, int player) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
