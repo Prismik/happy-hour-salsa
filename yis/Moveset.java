@@ -3,19 +3,19 @@ package yis;
 import java.util.ArrayList;
 
 class Moveset {
-	private ArrayList<Point> moves;
+	private ArrayList<Tile> moves;
 
 	// A moveset of 0 meanrs you cannot
 	// move in the given direction.
 	public Moveset() {
-		moves = new ArrayList<Point>();
+		moves = new ArrayList<Tile>();
 	}
 
-	public Moveset(ArrayList<Point> moves) {
+	public Moveset(ArrayList<Tile> moves) {
 		this.moves = moves;
 	}
 	
-	public void addMove(Point move) { moves.add(move); }
+	public void addMove(Tile move) { moves.add(move); }
 	public void clear() { moves.clear(); }
 	
 /*
