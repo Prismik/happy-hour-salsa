@@ -21,8 +21,8 @@ class Board {
 		else if (player == BLACK && blackPieces == 1)
 			return true;
 		else
-			for (int i = 0; i != size - 1; i++)
-				for (int j = 0; j != size -1; j++)
+			for (int i = 0; i != size; i++)
+				for (int j = 0; j != size; j++)
 					if (adjacentsOfType(i, j, player) == 0)
 						return false;	
 		
@@ -103,12 +103,18 @@ class Board {
 	
 	public String getNextMove() {
 		Piece currentPiece;
+		Piece pieceToMove = null;
+		Tile tileToGo = null;
 		for (int i = 0; i < 8; ++i) {
 			for (int j = 0; j < 8; ++j) {
 				currentPiece = board[i][j];
 				if (currentPiece != null) {
-					for (Tile move : currentPiece.getMoveset())
-						System.out.println(i + "" + j + "-" + move.getX() + "" + move.getY());
+					for (Tile move : currentPiece.getMoveset()) {
+						if (tileToGo == null || tileToGo.getValue() < move.getValue()) {
+							pieceToMove = currentPiece;
+							tileToGo = move;
+						}
+					}
 				}
 			}
 		}
@@ -126,17 +132,74 @@ class Board {
 		ArrayList<Tile> moveset = board[x][y].getMoveset();
 		moveset.clear();
 		Tile t;
-		if ((t = lookUp(x, y, mvmtV, player)) != null) moveset.add(t);
-		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) moveset.add(t);
-		if ((t = lookRight(x, y, mvmtH, player)) != null) moveset.add(t);
-		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) moveset.add(t);
-		if ((t = lookDown(x, y, mvmtV, player)) != null) moveset.add(t);
-		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) moveset.add(t);
-		if ((t = lookLeft(x, y, mvmtH, player)) != null) moveset.add(t);
-		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) moveset.add(t);
+		if ((t = lookUp(x, y, mvmtV, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtV, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbl, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookRight(x, y, mvmtH, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtH, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbr, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookDown(x, y, mvmtV, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtV, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbl, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookLeft(x, y, mvmtH, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtH, player));
+			moveset.add(t);
+		}
+		
+		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) {
+			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbr, player));
+			moveset.add(t);
+		}
+			
 		board[x][y].setMoveset(moveset);
 	}
 
+	public int getValue(int currentX, int currentY, int toX, int toY, int mov, int player) {
+		int currentPosVal = 8;
+		if ((currentX == 0 || currentX == 7) &&  (currentY == 0 || currentY == 7)) {
+			currentPosVal = 3;
+		} else if ((currentX == 0 || currentX == 7) || (currentY == 0 || currentY == 7)) {
+			currentPosVal = 5;
+		}
+		
+		int toPosVal = 8;
+		if ((toX == 0 || toX == 7) &&  (toY == 0 || toY == 7)) {
+			toPosVal = 3;
+		} else if ((toX == 0 || toX == 7) || (toY == 0 || toY == 7)) {
+			toPosVal = 5;
+		}
+	
+		int currentAdjVal = adjacentsOfType(currentX, currentY, player);
+		int toAdjVal = adjacentsOfType(toX, toY, player);
+		
+		// S'il est adjacent a lui meme, il faut enlever 1
+		if (mov == 1)
+			--toAdjVal;
+		
+		return toPosVal + toAdjVal - currentPosVal - currentAdjVal;
+	}
+	
 	// Optimisation possible, garder en memoire le nb de pieces
 	// veritcal horizontal et diagonal pour chaque position
 	private int countVerticalPieces(int x, int y) {

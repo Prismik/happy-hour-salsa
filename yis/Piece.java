@@ -21,4 +21,8 @@ class Piece {
 	
 	public void addMove(Tile move) { moves.add(move); }
 	public void clearMoves() { moves.clear(); }
+	
+	/*public int getDistanceTo(Tile t) {
+		return 
+	}*/
 }
