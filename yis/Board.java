@@ -134,71 +134,54 @@ class Board {
 		moveset.clear();
 		Tile t;
 		if ((t = lookUp(x, y, mvmtV, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtV, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbl, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookRight(x, y, mvmtH, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtH, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbr, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookDown(x, y, mvmtV, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtV, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbl, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookLeft(x, y, mvmtH, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtH, player));
 			moveset.add(t);
 		}
 		
 		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) {
-			t.setValue(getValue(x, y, t.getX(), t.getY(), mvmtDbr, player));
 			moveset.add(t);
 		}
-			
+		
+		for (Tile move : moveset)
+			System.out.println(x + "" + y + " - " + move.getX() + "" + move.getY());
+		
 		board[x][y].setMoveset(moveset);
 	}
-
-	public int getValue(int currentX, int currentY, int toX, int toY, int mov, int player) {
+	
+	public int getValue(int currentX, int currentY, int player) {
 		int currentPosVal = 8;
 		if ((currentX == 0 || currentX == 7) &&  (currentY == 0 || currentY == 7)) {
 			currentPosVal = 3;
 		} else if ((currentX == 0 || currentX == 7) || (currentY == 0 || currentY == 7)) {
 			currentPosVal = 5;
 		}
-		
-		int toPosVal = 8;
-		if ((toX == 0 || toX == 7) &&  (toY == 0 || toY == 7)) {
-			toPosVal = 3;
-		} else if ((toX == 0 || toX == 7) || (toY == 0 || toY == 7)) {
-			toPosVal = 5;
-		}
 	
 		int currentAdjVal = adjacentsOfType(currentX, currentY, player);
-		int toAdjVal = adjacentsOfType(toX, toY, player);
 		
-		// S'il est adjacent a lui meme, il faut enlever 1
-		if (mov == 1)
-			--toAdjVal;
-		
-		return toPosVal + toAdjVal - currentPosVal - currentAdjVal;
+		return currentPosVal + currentAdjVal;
 	}
 	
 	// Optimisation possible, garder en memoire le nb de pieces
@@ -366,8 +349,8 @@ class Board {
 	}
 	
 	public Tile lookLeft(int x, int y, int mov, int p) {
-		for (int i = y; i >= 0 && i >= y + mov; ++i) {
-			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != p))
+		for (int i = y; i >= 0 && i >= y - mov; --i) {
+			if (i == y - mov && (board[x][i] == null || board[x][i].getPlayer() != p))
 				return new Tile(x, i);
 			else if (board[x][i] != null && board[x][i].getPlayer() != p)
 				return null;
