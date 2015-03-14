@@ -11,6 +11,10 @@ class Piece {
 	}
 	
 	public ArrayList<Tile> getMoveset() { return moves; }
+	public void setMoveset(ArrayList<Tile> moves) 
+	{
+		this.moves = moves; 
+	}
 	
 	public int getPlayer() { return player; }
 

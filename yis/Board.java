@@ -75,7 +75,7 @@ class Board {
 		for (int i = 0; i < 8; ++i) {
 			for (int j = 0; j < 8; ++j) {
 				if (board[i][j] != null)
-					updateMoveset(i, j);
+					updateMoveset(i, j, board[i][j].getPlayer());
 			}
 		}
 	}
@@ -99,8 +99,8 @@ class Board {
 			for (int j = 0; j < 8; ++j) {
 				currentPiece = board[i][j];
 				if (currentPiece != null) {
-				for (Tile move : currentPiece.getMoveset())
-					System.out.println(i + "" + j + "-" + move.getX() + "" + move.getX());
+					for (Tile move : currentPiece.getMoveset())
+						System.out.println(i + "" + j + "-" + move.getX() + "" + move.getY());
 				}
 			}
 		}
@@ -108,7 +108,7 @@ class Board {
 		return "A2-C2";
 	}
 
-	public void updateMoveset(int x, int y) {
+	public void updateMoveset(int x, int y, int player) {
 		int mvmtV = countVerticalPieces(x, y);
 		int mvmtH = countHorizontalPieces(x, y);
 		int mvmtDbl = countDiagonalBottomLeftPieces(x, y);
@@ -117,23 +117,24 @@ class Board {
 		// clockwise looking
 		ArrayList<Tile> moveset = board[x][y].getMoveset();
 		moveset.clear();
-		Tile p;
-		if ((p = lookUp(x, y, mvmtV)) != null) moveset.add(p);
-		if ((p = lookUpRight(x, y, mvmtDbl)) != null) moveset.add(p);
-		if ((p = lookRight(x, y, mvmtH)) != null) moveset.add(p);
-		if ((p = lookDownRight(x, y, mvmtDbr)) != null) moveset.add(p);
-		if ((p = lookDown(x, y, mvmtV)) != null) moveset.add(p);
-		if ((p = lookDownLeft(x, y, mvmtDbl)) != null) moveset.add(p);
-		if ((p = lookLeft(x, y, mvmtH)) != null) moveset.add(p);
-		if ((p = lookUpLeft(x, y, mvmtDbr)) != null) moveset.add(p);
+		Tile t;
+		if ((t = lookUp(x, y, mvmtV, player)) != null) moveset.add(t);
+		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) moveset.add(t);
+		if ((t = lookRight(x, y, mvmtH, player)) != null) moveset.add(t);
+		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) moveset.add(t);
+		if ((t = lookDown(x, y, mvmtV, player)) != null) moveset.add(t);
+		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) moveset.add(t);
+		if ((t = lookLeft(x, y, mvmtH, player)) != null) moveset.add(t);
+		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) moveset.add(t);
+		board[x][y].setMoveset(moveset);
 	}
 
 	// Optimisation possible, garder en memoire le nb de pieces
 	// veritcal horizontal et diagonal pour chaque position
 	private int countVerticalPieces(int x, int y) {
 		int count = 0;
-		for (int i = 0; i != size - 1; i++)
-			if (board[x][i] != null)
+		for (int i = 0; i < size; i++)
+			if (board[i][y] != null)
 				count++;
 
 		return count;
@@ -141,8 +142,8 @@ class Board {
 
 	private int countHorizontalPieces(int x, int y) {
 		int count = 0;
-		for (int i = 0; i != size - 1; i++)
-			if (board[i][y] != null)
+		for (int i = 0; i < size; i++)
+			if (board[x][i] != null)
 				count++;
 
 		return count;
@@ -155,7 +156,7 @@ class Board {
 		int j = y - 1; // colonnes y
 		
 		// left
-		while (i < 8 && j >= 0) {
+		while (i < size && j >= 0) {
 			if (board[i][j] != null) 
 				++count;
 			
@@ -167,7 +168,7 @@ class Board {
 		j = y + 1;
 		
 		// right
-		while (i >= 0 && j < 8) {
+		while (i >= 0 && j < size) {
 			if (board[i][j] != null) 
 				++count;
 			
@@ -197,7 +198,7 @@ class Board {
 		j = y + 1;
 		
 		// right
-		while (i < 8 && j < 8) {
+		while (i < size && j < size) {
 			if (board[i][j] != null) 
 				++count;
 			
@@ -208,25 +209,25 @@ class Board {
 		return count;
 	}
 	
-	public Tile lookUp(int x, int y, int mov) {
+	public Tile lookUp(int x, int y, int mov, int p) {
 		for (int i = x; i >= 0 && i >= x - mov; --i) {
-			if (i == x - mov && (board[i][y] == null || board[i][y].getPlayer() != player))
+			if (i == x - mov && (board[i][y] == null || board[i][y].getPlayer() != p))
 				return new Tile(i, y);
-			else if (board[i][y] != null && board[i][y].getPlayer() != player)
+			else if (board[i][y] != null && board[i][y].getPlayer() != p)
 				return null;
 		}
 			
 		return null;
 	}
 	
-	public Tile lookUpRight(int x, int y, int mov) {
+	public Tile lookUpRight(int x, int y, int mov, int p) {
 		int i = x;
 		int j = y;
 		
-		for (int nbMoves = 0; i >= 0 && j < 8 && nbMoves < mov; ++nbMoves) {
-			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+		for (int nbMoves = 0; i >= 0 && j < size && nbMoves < mov; ++nbMoves) {
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != p))
 				return new Tile(i, j);
-			else if (board[i][j] != null && board[i][j].getPlayer() != player)
+			else if (board[i][j] != null && board[i][j].getPlayer() != p)
 				return null;
 			
 			--i;
@@ -236,25 +237,25 @@ class Board {
 		return null;
 	}
 	
-	public Tile lookRight(int x, int y, int mov) {
-		for (int i = y; i < 8 && i <= y + mov; ++i) {
-			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != player))
+	public Tile lookRight(int x, int y, int mov, int p) {
+		for (int i = y; i < size && i <= y + mov; ++i) {
+			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != p))
 				return new Tile(x, i);
-			else if (board[x][i] != null && board[x][i].getPlayer() != player)
+			else if (board[x][i] != null && board[x][i].getPlayer() != p)
 				return null;
 		}
 			
 		return null;
 	}
 	
-	public Tile lookDownRight(int x, int y, int mov) {
+	public Tile lookDownRight(int x, int y, int mov, int p) {
 		int i = x;
 		int j = y;
 		
-		for (int nbMoves = 0; i < 8 && j < 8 && nbMoves < mov; ++nbMoves) {
-			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+		for (int nbMoves = 0; i < size && j < size && nbMoves < mov; ++nbMoves) {
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != p))
 				return new Tile(i, j);
-			else if (board[i][j] != null && board[i][j].getPlayer() != player)
+			else if (board[i][j] != null && board[i][j].getPlayer() != p)
 				return null;
 			
 			++i;
@@ -264,25 +265,25 @@ class Board {
 		return null;
 	}
 	
-	public Tile lookDown(int x, int y, int mov) {
-		for (int i = x; i < 8 && i <= x + mov; ++i) {
-			if (i == x + mov && (board[i][y] == null || board[i][y].getPlayer() != player))
+	public Tile lookDown(int x, int y, int mov, int p) {
+		for (int i = x; i < size && i <= x + mov; ++i) {
+			if (i == x + mov && (board[i][y] == null || board[i][y].getPlayer() != p))
 				return new Tile(i, y);
-			else if (board[i][y] != null && board[i][y].getPlayer() != player)
+			else if (board[i][y] != null && board[i][y].getPlayer() != p)
 				return null;
 		}
 			
 		return null;
 	}
 	
-	public Tile lookDownLeft(int x, int y, int mov) {
+	public Tile lookDownLeft(int x, int y, int mov, int p) {
 		int i = x;
 		int j = y;
 		
-		for (int nbMoves = 0; i < 8 && j >= 0 && nbMoves < mov; ++nbMoves) {
-			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+		for (int nbMoves = 0; i < size && j >= 0 && nbMoves < mov; ++nbMoves) {
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != p))
 				return new Tile(i, j);
-			else if (board[i][j] != null && board[i][j].getPlayer() != player)
+			else if (board[i][j] != null && board[i][j].getPlayer() != p)
 				return null;
 			
 			++i;
@@ -292,25 +293,25 @@ class Board {
 		return null;
 	}
 	
-	public Tile lookLeft(int x, int y, int mov) {
+	public Tile lookLeft(int x, int y, int mov, int p) {
 		for (int i = y; i >= 0 && i >= y + mov; ++i) {
-			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != player))
+			if (i == y + mov && (board[x][i] == null || board[x][i].getPlayer() != p))
 				return new Tile(x, i);
-			else if (board[x][i] != null && board[x][i].getPlayer() != player)
+			else if (board[x][i] != null && board[x][i].getPlayer() != p)
 				return null;
 		}
 			
 		return null;
 	}
 	
-	public Tile lookUpLeft(int x, int y, int mov) {
+	public Tile lookUpLeft(int x, int y, int mov, int p) {
 		int i = x;
 		int j = y;
 		
 		for (int nbMoves = 0; i >= 0 && j >= 0 && nbMoves < mov; ++nbMoves) {
-			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != player))
+			if (nbMoves == mov && (board[i][j] == null || board[i][j].getPlayer() != p))
 				return new Tile(i, j);
-			else if (board[i][j] != null && board[i][j].getPlayer() != player)
+			else if (board[i][j] != null && board[i][j].getPlayer() != p)
 				return null;
 			
 			--i;
