@@ -31,12 +31,18 @@ class Client {
 		board.init(p);
 	}
 	
-	public static void parseMsg(String msg) {
+	public static Tile[] parseMsg(String msg) {
 		String[] tiles = msg.split(" - ");
 		int fromX = Character.getNumericValue(tiles[0].charAt(0)) - 10;
 		int fromY = Character.getNumericValue(tiles[0].charAt(1));
 		int toX = Character.getNumericValue(tiles[1].charAt(0)) - 10;
 		int toY = Character.getNumericValue(tiles[1].charAt(1));
+
+		Tile[] tiles = new Tile[2];
+		tiles[0] = new Tile(fromX, fromY);
+		tiles[1] = new Tile(toX, toY);
+
+		return tiles;
 	}
 
 	// We generate the move list and select
