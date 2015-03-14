@@ -32,7 +32,11 @@ class Client {
 	}
 	
 	public static void parseMsg(String msg) {
-
+		String[] tiles = msg.split(" - ");
+		int fromX = Character.getNumericValue(tiles[0].charAt(0)) - 10;
+		int fromY = Character.getNumericValue(tiles[0].charAt(1));
+		int toX = Character.getNumericValue(tiles[1].charAt(0)) - 10;
+		int toY = Character.getNumericValue(tiles[1].charAt(1));
 	}
 
 	// We generate the move list and select
