@@ -29,7 +29,7 @@ class Client {
 
 			board.setSelf(p);
 	}
-
+	
 	public static void parseMsg(String msg) {
 
 	}
