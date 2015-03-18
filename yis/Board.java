@@ -119,33 +119,32 @@ class Board {
 
 	public String getNextMove() {
 		Piece currentPiece;
-        Piece pieceToMove;
-        Tile tileToGo = null;
-        int x, y;
-        x = y = 0;
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                currentPiece = board[i][j];
-                if (currentPiece != null) {
-                    x = i;
-                    y = j;
-                    for (Tile move : currentPiece.getMoveset()) {
-                        if (tileToGo == null || tileToGo.getValue() < move.getValue()
-                                && currentPiece.getPlayer() == player) {
-                            pieceToMove = currentPiece;
-                            tileToGo = move;
-                        }
+    Tile tileToGo = null;
+    int x, y;
+    x = y = 0;
+    
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            currentPiece = board[i][j];
+            if (currentPiece != null) {
+                for (Tile move : currentPiece.getMoveset()) {
+                    if ((tileToGo == null || tileToGo.getValue() < move.getValue())
+                        && currentPiece.getPlayer() == player) {
+                      	x = i;
+                        y = j;
+                        tileToGo = move;
                     }
                 }
             }
         }
-
-        if (tileToGo != null) {
-            move(x, y, tileToGo.getX(), tileToGo.getY());
-            return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
-        }
-        else
-            return "";
+    }
+    
+    if (tileToGo != null) {
+        move(x, y, tileToGo.getX(), tileToGo.getY());
+        return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
+    }
+    else
+        return "";
 	}
 
 	public void updateMoveset(int x, int y, int player) {
@@ -158,7 +157,7 @@ class Board {
 		ArrayList<Tile> moveset = board[x][y].getMoveset();
 		moveset.clear();
 		Tile t;
-
+		
 		if ((t = lookUp(x, y, mvmtV, player)) != null) {
 			moveset.add(t);
 		}
