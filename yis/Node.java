@@ -19,8 +19,33 @@ class Node {
 		move = m;
 	}
 
-	public void addChild(Node child) { childs.add(child); }
+	public Node getBestChild() {
+		int val = Integer.MIN_VALUE;
+		Node best = null;
+		for(Node n : childs) {
+			if (n.getValue() > val) {
+				best = n;
+				val = best.getValue();
+			}
+		}
 
+		return best;
+	}
+
+	public Node getWorstChild() {
+		int val = Integer.MAX_VALUE;
+		Node worst = null;
+		for(Node n : childs) {
+			if (n.getValue() < val) {
+				worst = n;
+				val = worst.getValue();
+			}
+		}
+
+		return worst;
+	}
+
+	public void addChild(Node child) { childs.add(child); }
 	public ArrayList<Node> getChilds() { return childs; }
 	public void setMove(Move m) { move = m; }
 	public Move getMove() { return move; }

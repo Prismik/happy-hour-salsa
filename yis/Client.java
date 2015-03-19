@@ -64,7 +64,10 @@ class Client {
 	}
 	
 	private Node buildMiniMaxTree() {
-		return miniMaxAlphaBeta(board, board.getPlayer(), Integer.MIN_VALUE, Integer.MAX_VALUE, DEEPNESS);
+		Node root = miniMaxAlphaBeta(board, board.getPlayer(), Integer.MIN_VALUE, Integer.MAX_VALUE, DEEPNESS);
+		root.setMove(root.getBestChild().getMove());
+		
+		return root;
 	}
 
 	private Node miniMaxAlphaBeta(Board currentBoard, int player, int alpha, int beta, int countdown) {
@@ -84,10 +87,13 @@ class Client {
 				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getOpponent(),
 						Math.max(alpha, currentAlpha), beta, countdown - 1);
 				current.addChild(child);
+				child.setMove(move);
+				
 				currentAlpha = Math.max(currentAlpha, child.getValue());
 				current.setValue(currentAlpha);
-				if (currentAlpha >= beta)
+				if (currentAlpha >= beta) {
 					return current;
+				}
 			}
 		}
 		else {
@@ -99,6 +105,8 @@ class Client {
 				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getPlayer(),
 						alpha, Math.min(beta, currentBeta), countdown - 1);
 				current.addChild(child);
+				child.setMove(move);
+				
 				currentBeta = Math.min(currentBeta, child.getValue());
 				current.setValue(currentBeta);
 				if (currentBeta <= alpha)

@@ -1,7 +1,6 @@
 package yis;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 class Board {
 	private final int WHITE = 4;
@@ -49,9 +48,9 @@ class Board {
 		else if (player == BLACK && blackPieces == 1)
 			return true;
 		else
-			for (int i = 0; i != size - 1; i++)
-				for (int j = 0; j != size -1; j++)
-					if (adjacentsOfType(i, j, player) == 0)
+			for (int i = 0; i < size; i++)
+				for (int j = 0; j < size; j++)
+					if (board[i][j] != null && adjacentsOfType(i, j, player) == 0)
 						return false;
 		
 		return true;
@@ -67,36 +66,36 @@ class Board {
 	public int adjacentsOfType(int x, int y, int player) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
-		boolean right = x + 1 <= size - 1;
-		boolean bottom = y + 1 <= size - 1;
+		boolean right = x + 1 < size;
+		boolean bottom = y + 1 < size;
 		boolean left = x - 1 >= 0;
 		if (left) {
-			if (board[x-1][y].getPlayer() == player)
+			if (board[x-1][y] != null && board[x-1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x-1][y-1].getPlayer() == player)
+			if (top && board[x-1][y-1] != null && board[x-1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x-1][y+1].getPlayer() == player)
+			if (bottom && board[x-1][y+1] != null && board[x-1][y+1].getPlayer() == player)
 				count++;
 		}
 
 		if (top)
-			if (board[x][y-1].getPlayer() == player)
+			if (board[x][y-1] != null && board[x][y-1].getPlayer() == player)
 				count++;
 
 		if (bottom)
-			if (board[x][y+1].getPlayer() == player)
+			if (board[x][y+1] != null && board[x][y+1].getPlayer() == player)
 				count++;
 
 		if (right) {
-			if (board[x+1][y].getPlayer() == player)
+			if (board[x+1][y] != null && board[x+1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x+1][y-1].getPlayer() == player)
+			if (top && board[x+1][y-1] != null && board[x+1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x+1][y+1].getPlayer() == player)
+			if (bottom && board[x+1][y+1] != null && board[x+1][y+1].getPlayer() == player)
 				count++;
 		}
 		
