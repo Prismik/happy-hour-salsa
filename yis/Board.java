@@ -43,7 +43,7 @@ class Board {
 		}
 	}
 
-	private boolean hasWon(int player, Piece[][] testBoard) {
+	private boolean hasWon(int player) {
 		if (player == WHITE && whitePieces == 1)
 			return true;
 		else if (player == BLACK && blackPieces == 1)
@@ -52,7 +52,11 @@ class Board {
 			for (int i = 0; i != size - 1; i++)
 				for (int j = 0; j != size -1; j++)
 					if (adjacentsOfType(i, j, player) == 0)
+<<<<<<< HEAD
 						return false;
+=======
+						return false;	
+>>>>>>> dbba87f1942cc1b8e065b4e2d96af64dc4acc359
 		
 		return true;
 	}

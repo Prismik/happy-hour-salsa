@@ -20,6 +20,7 @@ class Node {
 	}
 
 	public void addChild(Node child) { childs.add(child); }
+
 	public ArrayList<Node> getChilds() { return childs; }
 	public void setMove(Move m) { move = m; }
 	public Move getMove() { return move; }
