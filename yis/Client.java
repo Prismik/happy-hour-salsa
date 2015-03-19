@@ -58,6 +58,10 @@ class Client {
 			System.out.println(e);
 		}
 	}
+	
+	private static void buildMiniMaxTree() {
+		
+	}
 
 	public static void main(String[] args) {
 		try {

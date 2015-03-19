@@ -146,48 +146,58 @@ class Board {
     else
         return "";
 	}
-
-	public void updateMoveset(int x, int y, int player) {
+	
+	//ArrayList<Move> getMoveSetPlayer(player)
+	
+	public void updateMovesets() {
+		//for
+		// player1Moveset.addAll(updateMovesetOfPiece(i,j, p1));
+		
+		//for
+	  // player2Moveset.addAll(updateMovesetOfPiece(i, j, p2));
+	}
+	
+	private ArrayList<Move> updateMovesetOfPiece(int x, int y, int player) {
 		int mvmtV = countVerticalPieces(x, y);
 		int mvmtH = countHorizontalPieces(x, y);
 		int mvmtDbl = countDiagonalBottomLeftPieces(x, y);
 		int mvmtDbr = countDiagonalTopLeftPieces(x, y);
 		
 		// clockwise looking
-		ArrayList<Tile> moveset = board[x][y].getMoveset();
+		ArrayList<Move> moveset = new ArrayList<Move>();
 		moveset.clear();
 		Tile t;
 		
 		if ((t = lookUp(x, y, mvmtV, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y), t);
 		}
 		
 		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookRight(x, y, mvmtH, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookDown(x, y, mvmtV, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookLeft(x, y, mvmtH, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) {
-			moveset.add(t);
+			moveset.add(new Tile(x, y),t);
 		}
 		
 		for (Tile move : moveset)
