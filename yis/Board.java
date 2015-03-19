@@ -139,11 +139,11 @@ class Board {
 		}
 		
 		if (tileToGo != null) {
-				move(x, y, tileToGo.getX(), tileToGo.getY());
-				return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
+			move(x, y, tileToGo.getX(), tileToGo.getY());
+			return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
 		}
 		else
-				return "";
+			return "";
 	}
 
 	public void updateMoveset(int x, int y, int player) {
@@ -181,8 +181,8 @@ class Board {
 		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null)
 			moveset.add(t);
 		
-		for (Tile move : moveset)
-			System.out.println(x + "" + y + " - " + move.getX() + "" + move.getY());
+		//for (Tile move : moveset)
+		//	System.out.println(x + "" + y + " - " + move.getX() + "" + move.getY());
 		
 		board[x][y].setMoveset(moveset);
 	}
