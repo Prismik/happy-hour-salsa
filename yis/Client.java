@@ -4,13 +4,14 @@ import java.io.*;
 import java.net.*;
 
 class Client {
-	private static Board board;
-	private static Socket sock;
-	private static BufferedInputStream in;
-	private static BufferedOutputStream out;
+	private static final int DEEPNESS = 3;
+	private Board board;
+	private Socket sock;
+	private BufferedInputStream in;
+	private BufferedOutputStream out;
 
-	private static BufferedReader console;  
-	private static void handleBeginMsg(int p) throws IOException {
+	private BufferedReader console;  
+	private void handleBeginMsg(int p) throws IOException {
 		byte[] buffer = new byte[1024];
 		int size = in.available();
 		//System.out.println("size " + size);
@@ -31,7 +32,7 @@ class Client {
 		board.init(p);
 	}
 	
-	public static Tile[] parseMsg(String msg) {
+	public Tile[] parseMsg(String msg) {
 		String[] pos = msg.trim().split(" - ");
 		int fromX = Character.getNumericValue(pos[0].charAt(0)) - 10;
 		int fromY = Character.getNumericValue(pos[0].charAt(1)) - 1;
@@ -46,12 +47,15 @@ class Client {
 
 	// We generate the move list and select
 	// the best possible move in here
-	private static void play() {
+	private void play() {
 		try {
-			String move = null;
-			move = board.getNextMove();
-			System.out.println("Next move is: " + move);
-			out.write(move.getBytes(), 0, move.length());
+			String moveMessage = null;
+			
+			Node miniMaxTree = buildMiniMaxTree();
+
+			moveMessage = miniMaxTree.getMove().formatMove();
+			System.out.println("Next move is: " + moveMessage);
+			out.write(moveMessage.getBytes(), 0, moveMessage.length());
 			out.flush();
 		}
 		catch (IOException e) {
@@ -59,25 +63,52 @@ class Client {
 		}
 	}
 	
-	private static void buildMiniMaxTree() {
-		Node root = null;
-		Board tmpBoard = board.clone();
-
-		for(Move m : whiteMoveset)  {
-			tmpBoard.move(m);
-			root.addChild(new Node()); // TODO
-		}
-
-		for(Move m : blackMoveset)  {
-			tmpBoard.move(m);
-			root.addChild(new Node()); // TODO
-		}
-
-		root.setValue(root.getBestChild(Integer.MIN_VALUE, Integer.MAX_VALUE).getValue());
-		tmpBoard.move(root.getMove());
+	private Node buildMiniMaxTree() {
+		return miniMaxAlphaBeta(board, board.getPlayer(), Integer.MIN_VALUE, Integer.MAX_VALUE, DEEPNESS);
 	}
 
-	public static void main(String[] args) {
+	private Node miniMaxAlphaBeta(Board currentBoard, int player, int alpha, int beta, int countdown) {
+		Node current = new Node();
+		Board newBoard;
+		if (countdown == 0) {
+			current.setValue(currentBoard.evaluatePlayer(player));
+			return current;
+		}
+		
+		if (player == currentBoard.getPlayer()) {
+			int currentAlpha = Integer.MIN_VALUE;
+			for (Move move : currentBoard.getPlayerMoveset(player)) {
+				newBoard = new Board(currentBoard);
+				newBoard.doMove(move);
+				
+				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getOpponent(),
+						Math.max(alpha, currentAlpha), beta, countdown - 1);
+				current.addChild(child);
+				currentAlpha = Math.max(currentAlpha, child.getValue());
+				current.setValue(currentAlpha);
+				if (currentAlpha >= beta)
+					return current;
+			}
+		}
+		else {
+			int currentBeta = Integer.MAX_VALUE;
+			for (Move move : currentBoard.getPlayerMoveset(player)) {
+				newBoard = new Board(currentBoard);
+				newBoard.doMove(move);
+				
+				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getPlayer(),
+						alpha, Math.min(beta, currentBeta), countdown - 1);
+				current.addChild(child);
+				currentBeta = Math.min(currentBeta, child.getValue());
+				current.setValue(currentBeta);
+				if (currentBeta <= alpha)
+					return current;
+			}
+		}
+		
+		return current;
+	}
+	public Client() {
 		try {
 			board = new Board(8);
 			sock = new Socket("localhost", 8888);
@@ -113,7 +144,7 @@ class Client {
 					
 					String s = new String(buffer);
 					System.out.println("Dernier coup : " + s);
-					board.move(parseMsg(s));
+					board.doMove(parseMsg(s));
 
 					System.out.println("Entrez votre coup : ");
 					play();
@@ -129,6 +160,10 @@ class Client {
 		catch (IOException e) {
 			System.out.println(e);
 		}
+	}
+	
+	public static void main(String[] args) {
+		Client c = new Client();
 	}
 }
 

@@ -12,14 +12,35 @@ class Board {
 	private int whitePieces, blackPieces;
 	private ArrayList<Move> whiteMoveset;
 	private ArrayList<Move> blackMoveset;
-	private Random r;
+	
 	public Board(int s) {
 		size = s;
 		board = new Piece[size][size];
 		whitePieces = blackPieces = (s - 2) * 2;
 		whiteMoveset = new ArrayList<Move>();
 		blackMoveset = new ArrayList<Move>();
-		r = new Random();
+	}
+	
+	public Board(Board board) {
+		this.size = board.size;
+		this.board = new Piece[this.size][this.size];
+		for (int i = 0; i < size; ++i)
+			for (int j = 0; j < size; ++j)
+				this.board[i][j] = board.board[i][j];
+		
+		this.player = board.player;
+		this.whitePieces = board.whitePieces;
+		this.blackPieces = board.blackPieces;
+		
+		this.whiteMoveset = new ArrayList<Move>();
+		for (Move move: board.whiteMoveset) {
+			this.whiteMoveset.add(move);
+		}
+		
+		this.blackMoveset = new ArrayList<Move>();
+		for (Move move: board.blackMoveset) {
+			this.blackMoveset.add(move);
+		}
 	}
 
 	private boolean hasWon(int player, Piece[][] testBoard) {
@@ -30,55 +51,52 @@ class Board {
 		else
 			for (int i = 0; i != size - 1; i++)
 				for (int j = 0; j != size -1; j++)
-					if (adjacentsOfType(i, j, player, testBoard) == 0)
-						return false;	
+					if (adjacentsOfType(i, j, player) == 0)
+						return false;
 		
 		return true;
 	}
 	
-	private String tileToString(int x, int y) {
-		System.out.println("Format is: " + Integer.toString(y + 1));
-		return Character.toChars(x + 65)[0] + Integer.toString(y + 1);
+	public int getPlayer() { return player; }
+	public int getOpponent() { return (player == WHITE)? BLACK : WHITE; }
+	
+	public ArrayList<Move> getPlayerMoveset(int player) { 
+		return (player == WHITE) ? this.whiteMoveset : this.blackMoveset; 
 	}
 
-	private String formatMove(int fromX, int fromY, int toX, int toY) {
-		System.out.println("Before the parse: " + fromX + " " + fromY + " TO " + toX + " " + toY);
-		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
-	}
-
-	public int adjacentsOfType(int x, int y, int player, Piece[][] testBoard) {
+	public int adjacentsOfType(int x, int y, int player) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
 		boolean right = x + 1 <= size - 1;
 		boolean bottom = y + 1 <= size - 1;
 		boolean left = x - 1 >= 0;
 		if (left) {
-			if (testBoard[x-1][y].getPlayer() == player)
+			if (board[x-1][y].getPlayer() == player)
 				count++;
 
-			if (top && testBoard[x-1][y-1].getPlayer() == player)
+			if (top && board[x-1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && testBoard[x-1][y+1].getPlayer() == player)
+			if (bottom && board[x-1][y+1].getPlayer() == player)
 				count++;
 		}
 
 		if (top)
-			if (testBoard[x][y-1].getPlayer() == player)
+			if (board[x][y-1].getPlayer() == player)
 				count++;
 
 		if (bottom)
-			if (testBoard[x][y+1].getPlayer() == player)
+			if (board[x][y+1].getPlayer() == player)
 				count++;
 
 		if (right) {
-			if (testBoard[x+1][y].getPlayer() == player)
+			if (board[x+1][y].getPlayer() == player)
 				count++;
 
-			if (top && testBoard[x+1][y-1].getPlayer() == player)
+			if (top && board[x+1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && testBoard[x+1][y+1].getPlayer() == player)
+			if (bottom && board[x+1][y+1].getPlayer() == player)
 				count++;
 		}
 		
@@ -99,7 +117,7 @@ class Board {
 			board[x][y] = new Piece(player);
 	}
 
-	public void move(int fromX, int fromY, int toX, int toY) {
+	public void doMove(int fromX, int fromY, int toX, int toY) {
 		Piece p = board[fromX][fromY];
 		board[fromX][fromY] = null;
 		if (board[toX][toY] != null) {
@@ -111,21 +129,21 @@ class Board {
 		}
 
 		board[toX][toY] = p;
-		updateMovesets()();
+		updateMovesets();
 		System.out.println(this.toString());
 	}
 
-	public void move(Tile[] tiles) {
-		move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
+	public void doMove(Tile[] tiles) {
+		doMove(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
 	}
 
-	public void move(Move m) {
+	public void doMove(Move m) {
 		Tile from = m.getFrom();
 		Tile to = m.getTo();
-		move(from.getX(), from.getY(), to.getX(), to.getY());
+		doMove(from.getX(), from.getY(), to.getX(), to.getY());
 	}
 
-	// TODO
+	/*
 	public String getNextMove() {
 		Piece currentPiece;
 		Tile tileToGo = null;
@@ -149,12 +167,12 @@ class Board {
 		}
 		
 		if (tileToGo != null) {
-			move(x, y, tileToGo.getX(), tileToGo.getY());
+			doMove(x, y, tileToGo.getX(), tileToGo.getY());
 			return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
 		}
 		else
 			return "";
-	}
+	}*/
 
 	public void updateMovesets() {
 		whiteMoveset.clear();
@@ -198,7 +216,7 @@ class Board {
 			moveset.add(new Move(from, to));
 
 		if ((to = lookDownLeft(x, y, mvmtDbl, player)) != null)
-			moveset.add(new Move(from, to);
+			moveset.add(new Move(from, to));
 
 		if ((to = lookLeft(x, y, mvmtH, player)) != null)
 			moveset.add(new Move(from, to));
@@ -209,7 +227,19 @@ class Board {
 		return moveset;
 	}
 	
-	public int getValue(int currentX, int currentY, int player) {
+	public int evaluatePlayer(int player) {
+		int value = 0;
+		for (int i = 0; i < size; ++i) {
+			for (int j = 0; j < size; ++j) {
+				if (board[i][j] != null && board[i][j].getPlayer() == player)
+					value += evaluatePosition(i, j, player);
+			}
+		}
+		
+		return value;
+	}
+	
+	public int evaluatePosition(int currentX, int currentY, int player) {
 		int currentPosVal = 8;
 		if ((currentX == 0 || currentX == 7) &&	(currentY == 0 || currentY == 7)) {
 			currentPosVal = 3;

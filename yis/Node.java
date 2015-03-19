@@ -1,5 +1,7 @@
 package yis;
 
+import java.util.ArrayList;
+
 class Node {
 	private ArrayList<Node> childs;
 	private int value;
@@ -15,22 +17,6 @@ class Node {
 		childs = new ArrayList<Node>();
 		value = 0;
 		move = m;
-	}
-
-	public Node getBestChild(int alpha, int beta) {
-		int val = 0;
-		for(Node n : childs) {
-			val = n.getBestChild(alpha, beta);
-		}
-		if (val != 0) {
-			if (val > alpha)
-				alpha = val;
-
-			if (val < beta)
-				beta = val;
-		}
-		else
-			return val;
 	}
 
 	public void addChild(Node child) { childs.add(child); }

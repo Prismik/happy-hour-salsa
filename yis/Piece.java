@@ -8,6 +8,6 @@ class Piece {
 	public Piece(int p) {
 		player = p;
 	}
-
+	
 	public int getPlayer() { return player; }
 }
