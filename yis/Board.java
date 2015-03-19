@@ -22,7 +22,7 @@ class Board {
 		r = new Random();
 	}
 
-	private boolean hasWon(int player, Piece[][] testBoard) {
+	private boolean hasWon(int player) {
 		if (player == WHITE && whitePieces == 1)
 			return true;
 		else if (player == BLACK && blackPieces == 1)
@@ -30,7 +30,7 @@ class Board {
 		else
 			for (int i = 0; i != size - 1; i++)
 				for (int j = 0; j != size -1; j++)
-					if (adjacentsOfType(i, j, player, testBoard) == 0)
+					if (adjacentsOfType(i, j, player) == 0)
 						return false;	
 		
 		return true;
@@ -46,39 +46,39 @@ class Board {
 		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
 	}
 
-	public int adjacentsOfType(int x, int y, int player, Piece[][] testBoard) {
+	public int adjacentsOfType(int x, int y, int player) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
 		boolean right = x + 1 <= size - 1;
 		boolean bottom = y + 1 <= size - 1;
 		boolean left = x - 1 >= 0;
 		if (left) {
-			if (testBoard[x-1][y].getPlayer() == player)
+			if (board[x-1][y].getPlayer() == player)
 				count++;
 
-			if (top && testBoard[x-1][y-1].getPlayer() == player)
+			if (top && board[x-1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && testBoard[x-1][y+1].getPlayer() == player)
+			if (bottom && board[x-1][y+1].getPlayer() == player)
 				count++;
 		}
 
 		if (top)
-			if (testBoard[x][y-1].getPlayer() == player)
+			if (board[x][y-1].getPlayer() == player)
 				count++;
 
 		if (bottom)
-			if (testBoard[x][y+1].getPlayer() == player)
+			if (board[x][y+1].getPlayer() == player)
 				count++;
 
 		if (right) {
-			if (testBoard[x+1][y].getPlayer() == player)
+			if (board[x+1][y].getPlayer() == player)
 				count++;
 
-			if (top && testBoard[x+1][y-1].getPlayer() == player)
+			if (top && board[x+1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && testBoard[x+1][y+1].getPlayer() == player)
+			if (bottom && board[x+1][y+1].getPlayer() == player)
 				count++;
 		}
 		
@@ -198,7 +198,7 @@ class Board {
 			moveset.add(new Move(from, to));
 
 		if ((to = lookDownLeft(x, y, mvmtDbl, player)) != null)
-			moveset.add(new Move(from, to);
+			moveset.add(new Move(from, to));
 
 		if ((to = lookLeft(x, y, mvmtH, player)) != null)
 			moveset.add(new Move(from, to));

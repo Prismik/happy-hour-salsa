@@ -17,20 +17,30 @@ class Node {
 		move = m;
 	}
 
-	public Node getBestChild(int alpha, int beta) {
-		int val = 0;
-		for(Nove n : childs) {
-			val = n.getBestChild(alpha, beta);
+	public Node getBestChild() {
+		int val = Integer.MIN_VALUE;
+		Node best = null;
+		for(Node n : childs) {
+			if (n.getValue() > val) {
+				best = n;
+				val = best.getValue();
+			}
 		}
-		if (val != 0) {
-			if (val > alpha)
-				alpha = val;
 
-			if (val < beta)
-				beta = val;
+		return best;
+	}
+
+	public Node getWorstChild() {
+		int val = Integer.MAX_VALUE;
+		Node worst = null;
+		for(Node n : childs) {
+			if (n.getValue() < val) {
+				worst = n;
+				val = worst.getValue();
+			}
 		}
-		else
-			return val;
+
+		return worst;
 	}
 
 	public void addChild(Nove child) { childs.add(child); }
