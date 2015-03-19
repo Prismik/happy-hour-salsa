@@ -10,15 +10,19 @@ class Board {
 	private int player = 4; // default
 	private int size;
 	private int whitePieces, blackPieces;
+	private ArrayList<Move> whiteMoveset;
+	private ArrayList<Move> blackMoveset;
 	private Random r;
 	public Board(int s) {
 		size = s;
 		board = new Piece[size][size];
 		whitePieces = blackPieces = (s - 2) * 2;
+		whiteMoveset = new ArrayList<Move>();
+		blackMoveset = new ArrayList<Move>();
 		r = new Random();
 	}
 
-	private boolean hasWon(int player) {
+	private boolean hasWon(int player, Piece[][] testBoard) {
 		if (player == WHITE && whitePieces == 1)
 			return true;
 		else if (player == BLACK && blackPieces == 1)
@@ -26,7 +30,7 @@ class Board {
 		else
 			for (int i = 0; i != size - 1; i++)
 				for (int j = 0; j != size -1; j++)
-					if (adjacentsOfType(i, j, player) == 0)
+					if (adjacentsOfType(i, j, player, testBoard) == 0)
 						return false;	
 		
 		return true;
@@ -42,39 +46,39 @@ class Board {
 		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
 	}
 
-	public int adjacentsOfType(int x, int y, int player) {
+	public int adjacentsOfType(int x, int y, int player, Piece[][] testBoard) {
 		int count = 0;
 		boolean top = y - 1 >= 0;
 		boolean right = x + 1 <= size - 1;
 		boolean bottom = y + 1 <= size - 1;
 		boolean left = x - 1 >= 0;
 		if (left) {
-			if (board[x-1][y].getPlayer() == player)
+			if (testBoard[x-1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x-1][y-1].getPlayer() == player)
+			if (top && testBoard[x-1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x-1][y+1].getPlayer() == player)
+			if (bottom && testBoard[x-1][y+1].getPlayer() == player)
 				count++;
 		}
 
 		if (top)
-			if (board[x][y-1].getPlayer() == player)
+			if (testBoard[x][y-1].getPlayer() == player)
 				count++;
 
 		if (bottom)
-			if (board[x][y+1].getPlayer() == player)
+			if (testBoard[x][y+1].getPlayer() == player)
 				count++;
 
 		if (right) {
-			if (board[x+1][y].getPlayer() == player)
+			if (testBoard[x+1][y].getPlayer() == player)
 				count++;
 
-			if (top && board[x+1][y-1].getPlayer() == player)
+			if (top && testBoard[x+1][y-1].getPlayer() == player)
 				count++;
 
-			if (bottom && board[x+1][y+1].getPlayer() == player)
+			if (bottom && testBoard[x+1][y+1].getPlayer() == player)
 				count++;
 		}
 		
@@ -85,16 +89,7 @@ class Board {
 	// 2 for black
 	public void init(int p) {
 		player = p;
-		updateAll();
-	}
-
-	private void updateAll() {
-		for (int i = 0; i < 8; ++i) {
-			for (int j = 0; j < 8; ++j) {
-				if (board[i][j] != null)
-					updateMoveset(i, j, board[i][j].getPlayer());
-			}
-		}
+		updateMovesets();
 	}
 
 	public void set(int x, int y, int player) {
@@ -107,8 +102,16 @@ class Board {
 	public void move(int fromX, int fromY, int toX, int toY) {
 		Piece p = board[fromX][fromY];
 		board[fromX][fromY] = null;
+		if (board[toX][toY] != null) {
+			int player = board[toX][toY].getPlayer();
+			if (player == BLACK)
+				blackPieces--;
+			else
+				whitePieces--;
+		}
+
 		board[toX][toY] = p;
-		updateAll();
+		updateMovesets()();
 		System.out.println(this.toString());
 	}
 
@@ -116,14 +119,15 @@ class Board {
 		move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
 	}
 
+	// à changer
 	public String getNextMove() {
 		Piece currentPiece;
 		Tile tileToGo = null;
 		int x, y;
 		x = y = 0;
 		
-		for (int i = 0; i < 8; ++i) {
-			for (int j = 0; j < 8; ++j) {
+		for (int i = 0; i < size; ++i) {
+			for (int j = 0; j < size; ++j) {
 				currentPiece = board[i][j];
 				if (currentPiece != null) {
 					for (Tile move : currentPiece.getMoveset()) {
@@ -145,15 +149,21 @@ class Board {
 		else
 			return "";
 	}
-	
-	//ArrayList<Move> getMoveSetPlayer(player)
-	
+
 	public void updateMovesets() {
-		//for
-		// player1Moveset.addAll(updateMovesetOfPiece(i,j, p1));
-		
-		//for
-	  // player2Moveset.addAll(updateMovesetOfPiece(i, j, p2));
+		whiteMoveset.clear();
+		blackMoveset.clear();
+		for (int i = 0; i < size; ++i) {
+			for (int j = 0; j < size; ++j) {
+				Piece p = board[i][j];
+				if (p != null) {
+					if (p.getPlayer() == WHITE)
+						whiteMoveset.addAll(updateMovesetOfPiece(i, j, WHITE));
+					else
+						blackMoveset.addAll(updateMovesetOfPiece(i, j, BLACK));
+				}
+			}
+		}
 	}
 	
 	private ArrayList<Move> updateMovesetOfPiece(int x, int y, int player) {
@@ -164,44 +174,33 @@ class Board {
 		
 		// clockwise looking
 		ArrayList<Move> moveset = new ArrayList<Move>();
-		moveset.clear();
-		Tile t;
-		if ((t = lookUp(x, y, mvmtV, player)) != null) {
-			moveset.add(new Tile(x, y), t);
-		}
+		Tile from = new Tile(x, y);
+		Tile to = null;
+		if ((to = lookUp(x, y, mvmtV, player)) != null)
+			moveset.add(new Move(from, to));
 		
-		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
+		if ((to = lookUpRight(x, y, mvmtDbl, player)) != null)
+			moveset.add(new Move(from, to));
 		
-		if ((t = lookRight(x, y, mvmtH, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
+		if ((to = lookRight(x, y, mvmtH, player)) != null)
+			moveset.add(new Move(from ,to));
 		
-		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
+		if ((to = lookDownRight(x, y, mvmtDbr, player)) != null)
+			moveset.add(new Move(from, to));
 		
-		if ((t = lookDown(x, y, mvmtV, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
+		if ((to = lookDown(x, y, mvmtV, player)) != null)
+			moveset.add(new Move(from, to));
+
+		if ((to = lookDownLeft(x, y, mvmtDbl, player)) != null)
+			moveset.add(new Move(from, to);
+
+		if ((to = lookLeft(x, y, mvmtH, player)) != null)
+			moveset.add(new Move(from, to));
 		
-		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
+		if ((to = lookUpLeft(x, y, mvmtDbr, player)) != null)
+			moveset.add(new Move(from, to));
 		
-		if ((t = lookLeft(x, y, mvmtH, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
-		
-		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) {
-			moveset.add(new Tile(x, y),t);
-		}
-		
-		//for (Tile move : moveset)
-		//	System.out.println(x + "" + y + " - " + move.getX() + "" + move.getY());
-		
-		board[x][y].setMoveset(moveset);
+		return moveset;
 	}
 	
 	public int getValue(int currentX, int currentY, int player) {
@@ -217,8 +216,6 @@ class Board {
 		return currentPosVal + currentAdjVal;
 	}
 	
-	// Optimisation possible, garder en memoire le nb de pieces
-	// veritcal horizontal et diagonal pour chaque position
 	private int countVerticalPieces(int x, int y) {
 		int count = 0;
 		for (int i = 0; i < size; i++)
