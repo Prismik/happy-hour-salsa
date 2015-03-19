@@ -119,7 +119,13 @@ class Board {
 		move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
 	}
 
-	// à changer
+	public void move(Move m) {
+		Tile from = m.getFrom();
+		Tile to = m.getTo();
+		move(from.getX(), from.getY(), to.getX(), to.getY());
+	}
+
+	// TODO
 	public String getNextMove() {
 		Piece currentPiece;
 		Tile tileToGo = null;

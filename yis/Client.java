@@ -38,10 +38,10 @@ class Client {
 		int toX = Character.getNumericValue(pos[1].charAt(0)) - 10;
 		int toY = Character.getNumericValue(pos[1].charAt(1)) - 1;
 
-        Tile[] tiles = new Tile[2];
-        tiles[0] = new Tile(fromX, fromY);
-        tiles[1] = new Tile(toX, toY);
-        return tiles;
+		Tile[] tiles = new Tile[2];
+		tiles[0] = new Tile(fromX, fromY);
+		tiles[1] = new Tile(toX, toY);
+		return tiles;
 	}
 
 	// We generate the move list and select
@@ -50,7 +50,7 @@ class Client {
 		try {
 			String move = null;
 			move = board.getNextMove();
-            System.out.println("Next move is: " + move);
+			System.out.println("Next move is: " + move);
 			out.write(move.getBytes(), 0, move.length());
 			out.flush();
 		}
@@ -60,7 +60,21 @@ class Client {
 	}
 	
 	private static void buildMiniMaxTree() {
-		
+		Node root = null;
+		Board tmpBoard = board.clone();
+
+		for(Move m : whiteMoveset)  {
+			tmpBoard.move(m);
+			root.addChild(new Node()); // TODO
+		}
+
+		for(Move m : blackMoveset)  {
+			tmpBoard.move(m);
+			root.addChild(new Node()); // TODO
+		}
+
+		root.setValue(root.getBestChild(Integer.MIN_VALUE, Integer.MAX_VALUE).getValue());
+		tmpBoard.move(root.getMove());
 	}
 
 	public static void main(String[] args) {
