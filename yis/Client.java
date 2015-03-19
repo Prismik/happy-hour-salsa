@@ -52,7 +52,7 @@ class Client {
 			String moveMessage = null;
 			
 			Node miniMaxTree = buildMiniMaxTree();
-
+			board.doMove(miniMaxTree.getMove());
 			moveMessage = miniMaxTree.getMove().formatMove();
 			System.out.println("Next move is: " + moveMessage);
 			out.write(moveMessage.getBytes(), 0, moveMessage.length());
