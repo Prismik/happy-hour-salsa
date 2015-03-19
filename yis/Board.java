@@ -129,7 +129,7 @@ class Board {
 
 		board[toX][toY] = p;
 		updateMovesets();
-		System.out.println(this.toString());
+		//System.out.println(this.toString());
 	}
 
 	public void doMove(Tile[] tiles) {

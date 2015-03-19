@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 
 class Client {
-	private static final int DEEPNESS = 3;
+	private static final int DEEPNESS = 6;
 	private Board board;
 	private Socket sock;
 	private BufferedInputStream in;
