@@ -88,14 +88,14 @@ class Board {
 		updateAll();
 	}
 
-		private void updateAll() {
-			for (int i = 0; i < 8; ++i) {
-				for (int j = 0; j < 8; ++j) {
-					if (board[i][j] != null)
-						updateMoveset(i, j, board[i][j].getPlayer());
-				}
+	private void updateAll() {
+		for (int i = 0; i < 8; ++i) {
+			for (int j = 0; j < 8; ++j) {
+				if (board[i][j] != null)
+					updateMoveset(i, j, board[i][j].getPlayer());
 			}
 		}
+	}
 
 	public void set(int x, int y, int player) {
 		if (player == 0)
