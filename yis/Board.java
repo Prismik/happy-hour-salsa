@@ -33,12 +33,12 @@ class Board {
 	}
 	
 	private String tileToString(int x, int y) {
-        System.out.println("Format is: " + Integer.toString(y + 1));
-        return Character.toChars(x + 65)[0] + Integer.toString(y + 1);
+		System.out.println("Format is: " + Integer.toString(y + 1));
+		return Character.toChars(x + 65)[0] + Integer.toString(y + 1);
 	}
 
 	private String formatMove(int fromX, int fromY, int toX, int toY) {
-        System.out.println("Before the parse: " + fromX + " " + fromY + " TO " + toX + " " + toY);
+		System.out.println("Before the parse: " + fromX + " " + fromY + " TO " + toX + " " + toY);
 		return tileToString(fromX, fromY) + " - " + tileToString(toX, toY);
 	}
 
@@ -88,14 +88,14 @@ class Board {
 		updateAll();
 	}
 
-    private void updateAll() {
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                if (board[i][j] != null)
-                    updateMoveset(i, j, board[i][j].getPlayer());
-            }
-        }
-    }
+		private void updateAll() {
+			for (int i = 0; i < 8; ++i) {
+				for (int j = 0; j < 8; ++j) {
+					if (board[i][j] != null)
+						updateMoveset(i, j, board[i][j].getPlayer());
+				}
+			}
+		}
 
 	public void set(int x, int y, int player) {
 		if (player == 0)
@@ -108,43 +108,42 @@ class Board {
 		Piece p = board[fromX][fromY];
 		board[fromX][fromY] = null;
 		board[toX][toY] = p;
-        updateAll();
-        System.out.println(this.toString());
+		updateAll();
+		System.out.println(this.toString());
 	}
 
-    public void move(Tile[] tiles) {
-        move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
-    }
-
+	public void move(Tile[] tiles) {
+		move(tiles[0].getX(), tiles[0].getY(), tiles[1].getX(), tiles[1].getY());
+	}
 
 	public String getNextMove() {
 		Piece currentPiece;
-    Tile tileToGo = null;
-    int x, y;
-    x = y = 0;
-    
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            currentPiece = board[i][j];
-            if (currentPiece != null) {
-                for (Tile move : currentPiece.getMoveset()) {
-                    if ((tileToGo == null || tileToGo.getValue() < move.getValue())
-                        && currentPiece.getPlayer() == player) {
-                      	x = i;
-                        y = j;
-                        tileToGo = move;
-                    }
-                }
-            }
-        }
-    }
-    
-    if (tileToGo != null) {
-        move(x, y, tileToGo.getX(), tileToGo.getY());
-        return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
-    }
-    else
-        return "";
+		Tile tileToGo = null;
+		int x, y;
+		x = y = 0;
+		
+		for (int i = 0; i < 8; ++i) {
+			for (int j = 0; j < 8; ++j) {
+				currentPiece = board[i][j];
+				if (currentPiece != null) {
+					for (Tile move : currentPiece.getMoveset()) {
+						if ((tileToGo == null || tileToGo.getValue() < move.getValue())
+							&& currentPiece.getPlayer() == player) {
+							x = i;
+							y = j;
+							tileToGo = move;
+						}
+					}
+				}
+			}
+		}
+		
+		if (tileToGo != null) {
+				move(x, y, tileToGo.getX(), tileToGo.getY());
+				return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
+		}
+		else
+				return "";
 	}
 
 	public void updateMoveset(int x, int y, int player) {
@@ -158,37 +157,29 @@ class Board {
 		moveset.clear();
 		Tile t;
 		
-		if ((t = lookUp(x, y, mvmtV, player)) != null) {
+		if ((t = lookUp(x, y, mvmtV, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null) {
+		if ((t = lookUpRight(x, y, mvmtDbl, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookRight(x, y, mvmtH, player)) != null) {
+		if ((t = lookRight(x, y, mvmtH, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null) {
+		if ((t = lookDownRight(x, y, mvmtDbr, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookDown(x, y, mvmtV, player)) != null) {
+		if ((t = lookDown(x, y, mvmtV, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null) {
+		if ((t = lookDownLeft(x, y, mvmtDbl, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookLeft(x, y, mvmtH, player)) != null) {
+		if ((t = lookLeft(x, y, mvmtH, player)) != null)
 			moveset.add(t);
-		}
 		
-		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null) {
+		if ((t = lookUpLeft(x, y, mvmtDbr, player)) != null)
 			moveset.add(t);
-		}
 		
 		for (Tile move : moveset)
 			System.out.println(x + "" + y + " - " + move.getX() + "" + move.getY());
@@ -198,7 +189,7 @@ class Board {
 	
 	public int getValue(int currentX, int currentY, int player) {
 		int currentPosVal = 8;
-		if ((currentX == 0 || currentX == 7) &&  (currentY == 0 || currentY == 7)) {
+		if ((currentX == 0 || currentX == 7) &&	(currentY == 0 || currentY == 7)) {
 			currentPosVal = 3;
 		} else if ((currentX == 0 || currentX == 7) || (currentY == 0 || currentY == 7)) {
 			currentPosVal = 5;
