@@ -142,36 +142,46 @@ class Board {
 		doMove(from.getX(), from.getY(), to.getX(), to.getY());
 	}
 
-	/*
-	public String getNextMove() {
-		Piece currentPiece;
-		Tile tileToGo = null;
-		int x, y;
-		x = y = 0;
-		
-		for (int i = 0; i < size; ++i) {
-			for (int j = 0; j < size; ++j) {
-				currentPiece = board[i][j];
-				if (currentPiece != null) {
-					for (Tile move : currentPiece.getMoveset()) {
-						if ((tileToGo == null || tileToGo.getValue() < move.getValue())
-							&& currentPiece.getPlayer() == player) {
-							x = i;
-							y = j;
-							tileToGo = move;
-						}
-					}
+	public void updateLinesOfAction(int x, int y, int toX, int toY) {
+		List<Move> tempWhiteMovesets = new List<Move>(whiteMoveset);
+		List<Move> tempBlackMovesets = new List<Move>(blackMoveset);
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.addAll(tilesInLinesOfAction(x, y));
+		tiles.addAll(tilesInLinesOfAction(toX, toY));
+		for(Tile t : tiles) {
+				int curX = t.getX();
+				int curY = t.getY();
+			for(Move m : tempWhiteMovesets) {
+				Tile from = m.getFrom();
+				Tile to = m.getTo();
+				if (from.getX() == curX && from.getY() == curY || 
+						to.getX() 	== curX && from.getY() == curY) {
+					whiteMoveset.remove(m);
+					whiteMoveset.addAll(updateMovesetOfPiece(curX, curY, WHITE));
+				}
+			}
+
+			for(Move m : tempBlackMovesets) {
+				Tile from = m.getFrom();
+				Tile to = m.getTo();
+				if (from.getX() == curX && from.getY() == curY || 
+						to.getX() 	== curX && from.getY() == curY) {
+					blackMoveset.remove(m);
+					blackMoveset.addAll(updateMovesetOfPiece(curX, curY, BLACK));
 				}
 			}
 		}
-		
-		if (tileToGo != null) {
-			doMove(x, y, tileToGo.getX(), tileToGo.getY());
-			return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
-		}
-		else
-			return "";
-	}*/
+	}
+
+	public Set<Tile> tilesInLinesOfAction(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.addAll(verticalPiecesFrom(x, y));
+		tiles.addAll(horizontalPiecesFrom(x, y));
+		tiles.addAll(diagBotLeftPiecesFrom(x, y));
+		tiles.addAll(diagTopLeftPiecesFrom(x, y));
+
+		return tiles;
+	}
 
 	public void updateMovesets() {
 		whiteMoveset.clear();
@@ -251,34 +261,37 @@ class Board {
 		return currentPosVal + currentAdjVal;
 	}
 	
-	private int countVerticalPieces(int x, int y) {
-		int count = 0;
+	private int countVerticalPieces(int x, int y) { return verticalPiecesFrom(x, y).size(); }
+	private Set<Tile> verticalPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
 		for (int i = 0; i < size; i++)
 			if (board[i][y] != null)
-				count++;
+				tiles.add(new Tile(i, y));
 
-		return count;
+		return tiles;
 	}
 
-	private int countHorizontalPieces(int x, int y) {
-		int count = 0;
+	private int countHorizontalPieces(int x, int y) { return horizontalTilesFrom(x, y).size(); } 
+	private Set<Tile> horizontalPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
 		for (int i = 0; i < size; i++)
 			if (board[x][i] != null)
-				count++;
+				tiles.add(new Tile(x, i));
 
-		return count;
-	} 
+		return tiles;
+	}
 
-	// à tester
-	private int countDiagonalBottomLeftPieces(int x, int y) {
-		int count = 1;
+	private int countDiagonalBottomLeftPieces(int x, int y) { return diagBotLeftPiecesFrom(x, y).size(); }
+	private Set<Tile> diagBotLeftPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.add(new Tile(x, y));
 		int i = x + 1; // ligne x
 		int j = y - 1; // colonnes y
 		
 		// left
 		while (i < size && j >= 0) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(i, j);
 			
 			++i;
 			--j;
@@ -290,25 +303,27 @@ class Board {
 		// right
 		while (i >= 0 && j < size) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(i, j);
 			
 			--i;
 			++j;
 		}
 		
-		return count;
+		return tiles;
 	}
 
 	// à tester
-	private int countDiagonalTopLeftPieces(int x, int y) {
-		int count = 1;
+	private int countDiagonalTopLeftPieces(int x, int y) { return diagTopLeftPiecesFrom(x, y).size(); }
+	private Set<Tile> diagTopLeftPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.add(new Tile(x, y));
 		int i = x - 1; // ligne x
 		int j = y - 1; // colonnes y
 		
 		// left
 		while (i >= 0 && j >= 0) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(i, j);
 			
 			--i;
 			--j;
@@ -320,13 +335,13 @@ class Board {
 		// right
 		while (i < size && j < size) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(i, j);
 			
 			++i;
 			++j;
 		}
 		
-		return count;
+		return tiles;
 	}
 	
 	public Tile lookUp(int x, int y, int mov, int p) {
