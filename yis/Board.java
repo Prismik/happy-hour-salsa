@@ -1,6 +1,8 @@
 package yis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 class Board {
 	private final int WHITE = 4;
@@ -128,8 +130,9 @@ class Board {
 		}
 
 		board[toX][toY] = p;
-		updateMovesets();
-		//System.out.println(this.toString());
+		updateLinesOfAction(fromX, fromY, toX, toY);
+		//updateMovesets();
+		System.out.println(this.toString());
 	}
 
 	public void doMove(Tile[] tiles) {
@@ -143,14 +146,14 @@ class Board {
 	}
 
 	public void updateLinesOfAction(int x, int y, int toX, int toY) {
-		List<Move> tempWhiteMovesets = new List<Move>(whiteMoveset);
-		List<Move> tempBlackMovesets = new List<Move>(blackMoveset);
+		ArrayList<Move> tempWhiteMovesets = new ArrayList<Move>(whiteMoveset);
+		ArrayList<Move> tempBlackMovesets = new ArrayList<Move>(blackMoveset);
 		Set<Tile> tiles = new HashSet<Tile>();
 		tiles.addAll(tilesInLinesOfAction(x, y));
 		tiles.addAll(tilesInLinesOfAction(toX, toY));
 		for(Tile t : tiles) {
-				int curX = t.getX();
-				int curY = t.getY();
+			int curX = t.getX();
+			int curY = t.getY();
 			for(Move m : tempWhiteMovesets) {
 				Tile from = m.getFrom();
 				Tile to = m.getTo();
@@ -271,7 +274,7 @@ class Board {
 		return tiles;
 	}
 
-	private int countHorizontalPieces(int x, int y) { return horizontalTilesFrom(x, y).size(); } 
+	private int countHorizontalPieces(int x, int y) { return horizontalPiecesFrom(x, y).size(); }
 	private Set<Tile> horizontalPiecesFrom(int x, int y) {
 		Set<Tile> tiles = new HashSet<Tile>();
 		for (int i = 0; i < size; i++)
@@ -291,7 +294,7 @@ class Board {
 		// left
 		while (i < size && j >= 0) {
 			if (board[i][j] != null) 
-				tiles.add(i, j);
+				tiles.add(new Tile(i, j));
 			
 			++i;
 			--j;
@@ -303,7 +306,7 @@ class Board {
 		// right
 		while (i >= 0 && j < size) {
 			if (board[i][j] != null) 
-				tiles.add(i, j);
+				tiles.add(new Tile(i, j));
 			
 			--i;
 			++j;
@@ -323,7 +326,7 @@ class Board {
 		// left
 		while (i >= 0 && j >= 0) {
 			if (board[i][j] != null) 
-				tiles.add(i, j);
+				tiles.add(new Tile(i, j));
 			
 			--i;
 			--j;
@@ -335,7 +338,7 @@ class Board {
 		// right
 		while (i < size && j < size) {
 			if (board[i][j] != null) 
-				tiles.add(i, j);
+				tiles.add(new Tile(i, j));
 			
 			++i;
 			++j;
