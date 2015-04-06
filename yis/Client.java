@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 
 class Client {
-	private static final int DEEPNESS = 3;
+	private static final int DEEPNESS = 5;
 	private Board board;
 	private Socket sock;
 	private BufferedInputStream in;
@@ -53,7 +53,11 @@ class Client {
 			
 			Node miniMaxTree = buildMiniMaxTree();
 			board.doMove(miniMaxTree.getMove());
+			
+			
 			moveMessage = miniMaxTree.getMove().formatMove();
+			System.out.println(board.toString());
+			
 			System.out.println("Next move is: " + moveMessage);
 			out.write(moveMessage.getBytes(), 0, moveMessage.length());
 			out.flush();
@@ -74,7 +78,7 @@ class Client {
 		Node current = new Node();
 		Board newBoard;
 		if (countdown == 0) {
-			current.setValue(currentBoard.evaluatePlayer(player));
+			current.setValue(currentBoard.evaluate());
 			return current;
 		}
 		

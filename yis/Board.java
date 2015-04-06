@@ -3,6 +3,11 @@ package yis;
 import java.util.ArrayList;
 
 class Board {
+	private static final int POSITION_MULTIPLIER = 3;
+	private static final int CONNECTIVITY_MULTIPLIER = 2;
+	private static final int EMPRISONMENT_MULTIPLIER = 4;
+	private static final int DISTANCE_MULTIPLIER = 3;
+	
 	private final int WHITE = 4;
 	private final int BLACK = 2;
 	private Piece[][] board;
@@ -129,7 +134,6 @@ class Board {
 
 		board[toX][toY] = p;
 		updateMovesets();
-		System.out.println(this.toString());
 	}
 
 	public void doMove(Tile[] tiles) {
@@ -141,37 +145,6 @@ class Board {
 		Tile to = m.getTo();
 		doMove(from.getX(), from.getY(), to.getX(), to.getY());
 	}
-
-	/*
-	public String getNextMove() {
-		Piece currentPiece;
-		Tile tileToGo = null;
-		int x, y;
-		x = y = 0;
-		
-		for (int i = 0; i < size; ++i) {
-			for (int j = 0; j < size; ++j) {
-				currentPiece = board[i][j];
-				if (currentPiece != null) {
-					for (Tile move : currentPiece.getMoveset()) {
-						if ((tileToGo == null || tileToGo.getValue() < move.getValue())
-							&& currentPiece.getPlayer() == player) {
-							x = i;
-							y = j;
-							tileToGo = move;
-						}
-					}
-				}
-			}
-		}
-		
-		if (tileToGo != null) {
-			doMove(x, y, tileToGo.getX(), tileToGo.getY());
-			return formatMove(x, y, tileToGo.getX(), tileToGo.getY());
-		}
-		else
-			return "";
-	}*/
 
 	public void updateMovesets() {
 		whiteMoveset.clear();
@@ -226,29 +199,142 @@ class Board {
 		return moveset;
 	}
 	
-	public int evaluatePlayer(int player) {
+	public int evaluate() {
 		int value = 0;
-		for (int i = 0; i < size; ++i) {
-			for (int j = 0; j < size; ++j) {
-				if (board[i][j] != null && board[i][j].getPlayer() == player)
-					value += evaluatePosition(i, j, player);
+		
+		if (hasWon(player))
+			value = Integer.MAX_VALUE;
+		else if (hasWon(getOpponent()))
+			value = Integer.MIN_VALUE;
+		else {
+			for (int i = 0; i < size; ++i) {
+				for (int j = 0; j < size; ++j) {
+					if (board[i][j] != null && board[i][j].getPlayer() == player)
+						value += evaluatePosition(i, j, player);
+					else if (board[i][j] != null && board[i][j].getPlayer() != player)
+						value -= evaluatePosition(i, j, getOpponent());
+				}
 			}
 		}
-		
 		return value;
 	}
 	
 	public int evaluatePosition(int currentX, int currentY, int player) {
-		int currentPosVal = 8;
+		int currentPosVal = 0;
 		if ((currentX == 0 || currentX == 7) &&	(currentY == 0 || currentY == 7)) {
-			currentPosVal = 3;
+			currentPosVal = -5;
 		} else if ((currentX == 0 || currentX == 7) || (currentY == 0 || currentY == 7)) {
-			currentPosVal = 5;
+			currentPosVal = -3;
 		}
-	
-		int currentAdjVal = adjacentsOfType(currentX, currentY, player);
 		
-		return currentPosVal + currentAdjVal;
+		currentPosVal *= POSITION_MULTIPLIER;
+	
+		int currentAdjVal = CONNECTIVITY_MULTIPLIER * adjacentsOfType(currentX, currentY, player);
+		
+		int currentEmprisonmentVal = EMPRISONMENT_MULTIPLIER * adjacentsOfType(currentX, currentY, (player == BLACK)? WHITE: BLACK);
+		
+		int bestDistanceTopLeft = 0, bestDistanceTop = 0, bestDistanceTopRight = 0,
+				bestDistanceLeft = 0, bestDistanceRight = 0,
+				bestDistanceBottomLeft = 0, bestDistanceBottom = 0, bestDistanceBottomRight = 0;
+		boolean top = true, right = true, bottom = true,
+			left = true, topLeft = true, topRight = true,
+			bottomRight = true, bottomLeft = true;
+		// Find nearest piece of the same player
+		for (int i = 0; i < size; ++i) {
+			if (top) top = currentY - i >= 0;
+			if (right) right = currentX + i < size;
+			if (bottom) bottom = currentY + i < size;
+			if (left) left = currentX - i >= 0;
+			if (topLeft) topLeft = top && left;
+			if (topRight) topRight = top && right;
+			if (bottomRight) bottomRight = bottom && right;
+			if (bottomLeft) bottomLeft = bottom && left;
+			
+			// haut gauche
+			if (topLeft) {
+					if (board[currentX - i][currentY - i] == null 
+						 || board[currentX - i][currentY - i].getPlayer() != player)
+						++bestDistanceTopLeft;
+					else
+						topLeft = false;
+			}
+			
+			// haut
+			if (top) {
+				if (board[currentX][currentY - i] == null 
+					 || board[currentX][currentY - i].getPlayer() != player)
+					++bestDistanceTop;
+				else
+					top = false;
+		}
+			
+			// haut droite
+			if (topRight) {
+				if (board[currentX + i][currentY - i] == null 
+					 || board[currentX + i][currentY - i].getPlayer() != player)
+					++bestDistanceTopRight;
+				else
+					topRight = false;
+		}
+			
+			// droite
+			if (right) {
+				if (board[currentX + i][currentY] == null 
+					 || board[currentX + i][currentY].getPlayer() != player)
+					++bestDistanceRight;
+				else
+					right = false;
+		}
+			
+			// bas droite
+			if (bottomRight) {
+				if (board[currentX + i][currentY + i] == null 
+					 || board[currentX + i][currentY + i].getPlayer() != player)
+					++bestDistanceBottomRight;
+				else
+					bottomRight = false;
+		}
+			
+			// bas
+			if (bottom) {
+				if (board[currentX][currentY + i] == null 
+						 || board[currentX][currentY + i].getPlayer() != player)
+						++bestDistanceBottom;
+					else
+						bottom = false;
+			}
+			
+			// bas gauche
+			if (bottomLeft) {
+				if (board[currentX - i][currentY + i] == null 
+					 || board[currentX - i][currentY + i].getPlayer() != player)
+					++bestDistanceBottomLeft;
+				else
+					bottomLeft = false;
+			}
+			
+			// gauche
+			if (left) {
+				if (board[currentX - i][currentY] == null 
+					 || board[currentX - i][currentY].getPlayer() != player)
+					++bestDistanceLeft;
+				else
+					left = false;
+			}
+		}
+
+		// ajustement d'importance
+		int bestDistance = Math.max(bestDistanceTopLeft, bestDistanceTop);
+		bestDistance = Math.max(bestDistance, bestDistanceTopRight);
+		bestDistance = Math.max(bestDistance, bestDistanceRight);
+		bestDistance = Math.max(bestDistance, bestDistanceBottomRight);
+		bestDistance = Math.max(bestDistance, bestDistanceBottom);
+		bestDistance = Math.max(bestDistance, bestDistanceBottomLeft);
+		bestDistance = Math.max(bestDistance, bestDistanceLeft);
+		
+		bestDistance *= DISTANCE_MULTIPLIER;
+		
+		return currentPosVal + currentAdjVal - bestDistance - currentEmprisonmentVal;
 	}
 	
 	private int countVerticalPieces(int x, int y) {
