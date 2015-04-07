@@ -1,12 +1,14 @@
 package yis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 class Board {
-	private static final int POSITION_MULTIPLIER = 3;
-	private static final int CONNECTIVITY_MULTIPLIER = 2;
-	private static final int EMPRISONMENT_MULTIPLIER = 4;
-	private static final int DISTANCE_MULTIPLIER = 3;
+	private static final int POSITION_MULTIPLIER = 15;
+	private static final int CONNECTIVITY_MULTIPLIER = 5;
+	private static final int EMPRISONMENT_MULTIPLIER = 5;
+	private static final int DISTANCE_MULTIPLIER = 4;
 	
 	private final int WHITE = 4;
 	private final int BLACK = 2;
@@ -16,6 +18,7 @@ class Board {
 	private int whitePieces, blackPieces;
 	private ArrayList<Move> whiteMoveset;
 	private ArrayList<Move> blackMoveset;
+	private int currentTurn;
 	
 	public Board(int s) {
 		size = s;
@@ -23,6 +26,7 @@ class Board {
 		whitePieces = blackPieces = (s - 2) * 2;
 		whiteMoveset = new ArrayList<Move>();
 		blackMoveset = new ArrayList<Move>();
+		currentTurn = 1;
 	}
 	
 	public Board(Board board) {
@@ -45,9 +49,11 @@ class Board {
 		for (Move move: board.blackMoveset) {
 			this.blackMoveset.add(move);
 		}
+		
+		this.currentTurn = board.currentTurn;
 	}
 
-	private boolean hasWon(int player) {
+	public boolean hasWon(int player) {
 		if (player == WHITE && whitePieces == 1)
 			return true;
 		else if (player == BLACK && blackPieces == 1)
@@ -122,6 +128,7 @@ class Board {
 	}
 
 	public void doMove(int fromX, int fromY, int toX, int toY) {
+		if (board[fromX][fromY].getPlayer() == this.player) ++currentTurn;
 		Piece p = board[fromX][fromY];
 		board[fromX][fromY] = null;
 		if (board[toX][toY] != null) {
@@ -133,7 +140,10 @@ class Board {
 		}
 
 		board[toX][toY] = p;
+
+		//updateLinesOfAction(fromX, fromY, toX, toY);
 		updateMovesets();
+		//System.out.println(this.toString());
 	}
 
 	public void doMove(Tile[] tiles) {
@@ -144,6 +154,47 @@ class Board {
 		Tile from = m.getFrom();
 		Tile to = m.getTo();
 		doMove(from.getX(), from.getY(), to.getX(), to.getY());
+	}
+
+	public void updateLinesOfAction(int x, int y, int toX, int toY) {
+		ArrayList<Move> tempWhiteMovesets = new ArrayList<Move>(whiteMoveset);
+		ArrayList<Move> tempBlackMovesets = new ArrayList<Move>(blackMoveset);
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.addAll(tilesInLinesOfAction(x, y));
+		tiles.addAll(tilesInLinesOfAction(toX, toY));
+		for(Tile t : tiles) {
+			int curX = t.getX();
+			int curY = t.getY();
+			for(Move m : tempWhiteMovesets) {
+				Tile from = m.getFrom();
+				Tile to = m.getTo();
+				if (from.getX() == curX && from.getY() == curY || 
+						to.getX() 	== curX && from.getY() == curY) {
+					whiteMoveset.remove(m);
+					whiteMoveset.addAll(updateMovesetOfPiece(curX, curY, WHITE));
+				}
+			}
+
+			for(Move m : tempBlackMovesets) {
+				Tile from = m.getFrom();
+				Tile to = m.getTo();
+				if (from.getX() == curX && from.getY() == curY || 
+						to.getX() 	== curX && from.getY() == curY) {
+					blackMoveset.remove(m);
+					blackMoveset.addAll(updateMovesetOfPiece(curX, curY, BLACK));
+				}
+			}
+		}
+	}
+
+	public Set<Tile> tilesInLinesOfAction(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.addAll(verticalPiecesFrom(x, y));
+		tiles.addAll(horizontalPiecesFrom(x, y));
+		tiles.addAll(diagBotLeftPiecesFrom(x, y));
+		tiles.addAll(diagTopLeftPiecesFrom(x, y));
+
+		return tiles;
 	}
 
 	public void updateMovesets() {
@@ -202,7 +253,7 @@ class Board {
 	public int evaluate() {
 		int value = 0;
 		
-		if (hasWon(player))
+		if (hasWon(this.player))
 			value = Integer.MAX_VALUE;
 		else if (hasWon(getOpponent()))
 			value = Integer.MIN_VALUE;
@@ -216,6 +267,7 @@ class Board {
 				}
 			}
 		}
+		
 		return value;
 	}
 	
@@ -227,19 +279,29 @@ class Board {
 			currentPosVal = -3;
 		}
 		
-		currentPosVal *= POSITION_MULTIPLIER;
+		currentPosVal *= POSITION_MULTIPLIER * (currentTurn * 0.1);
 	
-		int currentAdjVal = CONNECTIVITY_MULTIPLIER * adjacentsOfType(currentX, currentY, player);
+		int currentAdjVal = CONNECTIVITY_MULTIPLIER * adjacentsOfType(currentX, currentY, player) * (int)(currentTurn * 0.3);
 		
-		int currentEmprisonmentVal = EMPRISONMENT_MULTIPLIER * adjacentsOfType(currentX, currentY, (player == BLACK)? WHITE: BLACK);
+		int currentEmprisonmentVal = EMPRISONMENT_MULTIPLIER * (int)(currentTurn * 0.3)
+				* adjacentsOfType(currentX, currentY, (player == BLACK)? WHITE: BLACK);
 		
+		
+		// Find nearest piece of the same player
+
+		int bestDistance = getBestDistance(currentX, currentY, player) * DISTANCE_MULTIPLIER * (int)(currentTurn * 0.3);
+
+		return currentPosVal + currentAdjVal - bestDistance - currentEmprisonmentVal;
+	}
+	
+	public int getBestDistance(int currentX, int currentY, int player) {
 		int bestDistanceTopLeft = 0, bestDistanceTop = 0, bestDistanceTopRight = 0,
 				bestDistanceLeft = 0, bestDistanceRight = 0,
 				bestDistanceBottomLeft = 0, bestDistanceBottom = 0, bestDistanceBottomRight = 0;
 		boolean top = true, right = true, bottom = true,
 			left = true, topLeft = true, topRight = true,
 			bottomRight = true, bottomLeft = true;
-		// Find nearest piece of the same player
+		
 		for (int i = 0; i < size; ++i) {
 			if (top) top = currentY - i >= 0;
 			if (right) right = currentX + i < size;
@@ -324,47 +386,48 @@ class Board {
 		}
 
 		// ajustement d'importance
-		int bestDistance = Math.max(bestDistanceTopLeft, bestDistanceTop);
-		bestDistance = Math.max(bestDistance, bestDistanceTopRight);
-		bestDistance = Math.max(bestDistance, bestDistanceRight);
-		bestDistance = Math.max(bestDistance, bestDistanceBottomRight);
-		bestDistance = Math.max(bestDistance, bestDistanceBottom);
-		bestDistance = Math.max(bestDistance, bestDistanceBottomLeft);
-		bestDistance = Math.max(bestDistance, bestDistanceLeft);
+		int bestDistance = Math.min(bestDistanceTopLeft, bestDistanceTop);
+		bestDistance = Math.min(bestDistance, bestDistanceTopRight);
+		bestDistance = Math.min(bestDistance, bestDistanceRight);
+		bestDistance = Math.min(bestDistance, bestDistanceBottomRight);
+		bestDistance = Math.min(bestDistance, bestDistanceBottom);
+		bestDistance = Math.min(bestDistance, bestDistanceBottomLeft);
+		bestDistance = Math.min(bestDistance, bestDistanceLeft);
 		
-		bestDistance *= DISTANCE_MULTIPLIER;
-		
-		return currentPosVal + currentAdjVal - bestDistance - currentEmprisonmentVal;
+		return bestDistance;
 	}
 	
-	private int countVerticalPieces(int x, int y) {
-		int count = 0;
+	private int countVerticalPieces(int x, int y) { return verticalPiecesFrom(x, y).size(); }
+	private Set<Tile> verticalPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
 		for (int i = 0; i < size; i++)
 			if (board[i][y] != null)
-				count++;
+				tiles.add(new Tile(i, y));
 
-		return count;
+		return tiles;
 	}
 
-	private int countHorizontalPieces(int x, int y) {
-		int count = 0;
+	private int countHorizontalPieces(int x, int y) { return horizontalPiecesFrom(x, y).size(); }
+	private Set<Tile> horizontalPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
 		for (int i = 0; i < size; i++)
 			if (board[x][i] != null)
-				count++;
+				tiles.add(new Tile(x, i));
 
-		return count;
-	} 
+		return tiles;
+	}
 
-	// à tester
-	private int countDiagonalBottomLeftPieces(int x, int y) {
-		int count = 1;
+	private int countDiagonalBottomLeftPieces(int x, int y) { return diagBotLeftPiecesFrom(x, y).size(); }
+	private Set<Tile> diagBotLeftPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.add(new Tile(x, y));
 		int i = x + 1; // ligne x
 		int j = y - 1; // colonnes y
 		
 		// left
 		while (i < size && j >= 0) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(new Tile(i, j));
 			
 			++i;
 			--j;
@@ -376,25 +439,27 @@ class Board {
 		// right
 		while (i >= 0 && j < size) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(new Tile(i, j));
 			
 			--i;
 			++j;
 		}
 		
-		return count;
+		return tiles;
 	}
 
 	// à tester
-	private int countDiagonalTopLeftPieces(int x, int y) {
-		int count = 1;
+	private int countDiagonalTopLeftPieces(int x, int y) { return diagTopLeftPiecesFrom(x, y).size(); }
+	private Set<Tile> diagTopLeftPiecesFrom(int x, int y) {
+		Set<Tile> tiles = new HashSet<Tile>();
+		tiles.add(new Tile(x, y));
 		int i = x - 1; // ligne x
 		int j = y - 1; // colonnes y
 		
 		// left
 		while (i >= 0 && j >= 0) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(new Tile(i, j));
 			
 			--i;
 			--j;
@@ -406,13 +471,13 @@ class Board {
 		// right
 		while (i < size && j < size) {
 			if (board[i][j] != null) 
-				++count;
+				tiles.add(new Tile(i, j));
 			
 			++i;
 			++j;
 		}
 		
-		return count;
+		return tiles;
 	}
 	
 	public Tile lookUp(int x, int y, int mov, int p) {

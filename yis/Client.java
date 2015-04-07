@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 
 class Client {
-	private static final int DEEPNESS = 5;
+	private static final int DEEPNESS = 4;
 	private Board board;
 	private Socket sock;
 	private BufferedInputStream in;
@@ -78,7 +78,7 @@ class Client {
 		Node current = new Node();
 		Board newBoard;
 		if (countdown == 0) {
-			current.setValue(currentBoard.evaluate());
+			current.setValue(currentBoard.evaluate() * 9 / 10);
 			return current;
 		}
 		
@@ -87,6 +87,12 @@ class Client {
 			for (Move move : currentBoard.getPlayerMoveset(player)) {
 				newBoard = new Board(currentBoard);
 				newBoard.doMove(move);
+				
+				if (board.hasWon(board.getPlayer())) 
+					currentAlpha = Integer.MAX_VALUE;
+				
+				if (board.hasWon(board.getOpponent()))
+					currentAlpha = Integer.MIN_VALUE;
 				
 				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getOpponent(),
 						Math.max(alpha, currentAlpha), beta, countdown - 1);
@@ -105,6 +111,12 @@ class Client {
 			for (Move move : currentBoard.getPlayerMoveset(player)) {
 				newBoard = new Board(currentBoard);
 				newBoard.doMove(move);
+				
+				if (board.hasWon(board.getPlayer())) 
+					currentBeta = Integer.MAX_VALUE;
+				
+				if (board.hasWon(board.getOpponent()))
+					currentBeta = Integer.MIN_VALUE;
 				
 				Node child = miniMaxAlphaBeta(newBoard, currentBoard.getPlayer(),
 						alpha, Math.min(beta, currentBeta), countdown - 1);
